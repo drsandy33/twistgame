@@ -1,0 +1,26 @@
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+.main-container {
+  background: "green";
+}
+.canvas {
+  height: 500px;
+  width: 500px;
+  background: #789;
+
+  display: block;
+}
+.select-box {
+}
+.all-grids {
+  position: relative;
+  border: 2px solid black;
+  width: fit-content;
+}
+.select-grid {
+  position: absolute;
+  opacity: 50%;
+}
