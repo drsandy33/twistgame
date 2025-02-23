@@ -3,8 +3,11 @@ import "./App.css";
 import { getJewelPosition, makeGrid } from "./game";
 
 import { GRID_PIXEL_DIMENSIONS, GRID_SIZE } from "./app-consts";
-import { SelectGrid } from "./SelectBox";
-
+import { SelectGrid } from "./SelectGrid";
+import { drawGrid } from "./draw-grid";
+export const grid = makeGrid(8, 8);
+export const globalContextHolder: { context: null | CanvasRenderingContext2D } =
+  { context: null };
 function App() {
   useEffect(() => {
     const canvas = document.querySelector("canvas");
@@ -12,26 +15,9 @@ function App() {
     if (canvas === null) return;
     const context = canvas.getContext("2d");
     if (context === null) return;
-    const grid = makeGrid(8, 8);
+    globalContextHolder.context = context;
 
-    for (let i = 0; i < grid.length; i = i + 1) {
-      const row = grid[i];
-      if (row === undefined) throw new Error("expected does not exist");
-      for (let j = 0; j < row.length; j = j + 1) {
-        const jewel = row[j];
-        if (jewel === undefined)
-          throw new Error("expected jewel does not exist");
-        const jewelPlace = getJewelPosition(
-          i,
-          j,
-          GRID_PIXEL_DIMENSIONS.HEIGHT,
-          GRID_PIXEL_DIMENSIONS.WIDTH,
-          GRID_SIZE.ROWS,
-          GRID_SIZE.COLUMNS
-        );
-        jewel.drawSelf(context, jewelPlace);
-      }
-    }
+    drawGrid(grid, context);
   }, []);
 
   return (

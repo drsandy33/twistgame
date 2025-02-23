@@ -35,6 +35,7 @@ export class Jewel {
   jewelColor: JewelColor;
   jewelType: JewelType;
   count: number;
+  isSelected: boolean = false;
   constructor(jewelColor: JewelColor, jewelType: JewelType, count: number) {
     this.jewelColor = jewelColor;
     this.jewelType = jewelType;
@@ -45,5 +46,11 @@ export class Jewel {
     context.arc(place.x, place.y, JEWEL_DIAMETER / 2, 0, 2 * Math.PI);
     context.fillStyle = JEWEL_COLOR_STRINGS[this.jewelColor];
     context.fill();
+    if (this.isSelected === false) return;
+    context.beginPath();
+    context.arc(place.x, place.y, JEWEL_DIAMETER / 2, 0, 2 * Math.PI);
+    context.strokeStyle = "white";
+    context.lineWidth = 10;
+    context.stroke();
   }
 }
