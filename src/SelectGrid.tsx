@@ -2,33 +2,22 @@ import { globalContextHolder, grid } from "./App";
 import "./App.css";
 import { JEWEL_DIAMETER, SELECT_GRID_SIZE } from "./app-consts";
 import { drawGrid } from "./draw-grid";
+import { JewelQuartet, Point } from "./jewel-quartet";
 interface SelectBoxProps {
   x: number;
   y: number;
 }
 export function SelectBox(selectBoxProps: SelectBoxProps) {
-  const topLeftPosition = { x: selectBoxProps.x, y: selectBoxProps.y };
-  const topRightPosition = { x: selectBoxProps.x + 1, y: selectBoxProps.y };
-  const bottomLeftPosition = { x: selectBoxProps.x, y: selectBoxProps.y + 1 };
-  const bottomRightPosition = {
-    x: selectBoxProps.x + 1,
-    y: selectBoxProps.y + 1,
-  };
+  const quartet = new JewelQuartet(
+    new Point(selectBoxProps.x, selectBoxProps.y)
+  );
   function handleMouseLeave() {
     deselectJewels();
     const context = globalContextHolder.context;
     if (context === null) return;
     drawGrid(grid, context);
   }
-  function selectJewels() {
-    selectIfExist(topLeftPosition.x, topLeftPosition.y);
-    selectIfExist(topRightPosition.x, topRightPosition.y);
-    selectIfExist(bottomLeftPosition.x, bottomLeftPosition.y);
-    selectIfExist(bottomRightPosition.x, bottomRightPosition.y);
-    const context = globalContextHolder.context;
-    if (context === null) return;
-    drawGrid(grid, context);
-  }
+
   function deselectJewels() {
     for (let i = 0; i < grid.length; i = i + 1) {
       const row = grid[i];
@@ -42,20 +31,14 @@ export function SelectBox(selectBoxProps: SelectBoxProps) {
       }
     }
   }
-  function selectIfExist(x: number, y: number) {
-    const column = grid[x];
-    if (column === undefined) return;
-    const jewel = column[y];
-    if (jewel === undefined) return;
-    jewel.isSelected = true;
-  }
 
   return (
     <button
       className="select-box"
       style={{ height: JEWEL_DIAMETER, width: JEWEL_DIAMETER }}
-      onMouseEnter={selectJewels}
+      onMouseEnter={() => quartet.selectJewels(grid)}
       onMouseLeave={handleMouseLeave}
+      onMouseDown={() => quartet.rotate(grid)}
     >
       {selectBoxProps.x}, {selectBoxProps.y}
     </button>
