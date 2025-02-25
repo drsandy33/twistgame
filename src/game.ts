@@ -1,19 +1,3 @@
-import { JewelColor, Jewel, JewelType } from "./jewel";
-import { iterateNumericEnum, chooseRandomFromArray } from "./utils";
-
-export function makeGrid(rows: number, columns: number) {
-  const jeweledGrid: Jewel[][] = [];
-  for (let i = 0; i < rows; i = i + 1) {
-    const row = [];
-    for (let j = 0; j < columns; j = j + 1) {
-      const jewel = createJewel(0);
-      row.push(jewel);
-    }
-    jeweledGrid.push(row);
-  }
-
-  return jeweledGrid;
-}
 export function getJewelPosition(
   row: number,
   column: number,
@@ -32,12 +16,7 @@ function makeSubGrid() {}
 function findCursor() {}
 function drawCircle() {}
 
-function turn() {}
+function rotate() {}
 function threematch() {}
 function removeElement() {}
 function fillEmpty() {}
-function createJewel(level: number) {
-  const allColors = iterateNumericEnum(JewelColor);
-  const randColor = chooseRandomFromArray(allColors);
-  return new Jewel(randColor, JewelType.Normal, 0);
-}

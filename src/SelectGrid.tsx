@@ -1,7 +1,6 @@
 import { globalContextHolder, grid } from "./App";
 import "./App.css";
 import { JEWEL_DIAMETER, SELECT_GRID_SIZE } from "./app-consts";
-import { drawGrid } from "./draw-grid";
 import { JewelQuartet, Point } from "./jewel-quartet";
 interface SelectBoxProps {
   x: number;
@@ -12,24 +11,10 @@ export function SelectBox(selectBoxProps: SelectBoxProps) {
     new Point(selectBoxProps.x, selectBoxProps.y)
   );
   function handleMouseLeave() {
-    deselectJewels();
+    grid.deselectAllJewels();
     const context = globalContextHolder.context;
     if (context === null) return;
-    drawGrid(grid, context);
-  }
-
-  function deselectJewels() {
-    for (let i = 0; i < grid.length; i = i + 1) {
-      const row = grid[i];
-      if (row === undefined) throw new Error("expected does not exist");
-      for (let j = 0; j < row.length; j = j + 1) {
-        const jewel = row[j];
-        if (jewel === undefined)
-          throw new Error("expected jewel does not exist");
-
-        jewel.isSelected = false;
-      }
-    }
+    grid.drawSelf(context);
   }
 
   return (
@@ -49,7 +34,7 @@ export function SelectGrid() {
   for (let i = 0; i < SELECT_GRID_SIZE.COLUMNS; i = i + 1) {
     const column = [];
     for (let j = 0; j < SELECT_GRID_SIZE.ROWS; j = j + 1) {
-      column.push(<SelectBox x={i} y={j} />);
+      column.push(<SelectBox x={j} y={i} key={i + j} />);
     }
     rows.push(column);
   }

@@ -1,23 +1,22 @@
 import { useEffect } from "react";
 import "./App.css";
-import { getJewelPosition, makeGrid } from "./game";
-
-import { GRID_PIXEL_DIMENSIONS, GRID_SIZE } from "./app-consts";
+import { GRID_PIXEL_DIMENSIONS } from "./app-consts";
 import { SelectGrid } from "./SelectGrid";
-import { drawGrid } from "./draw-grid";
-export const grid = makeGrid(8, 8);
+import { Grid } from "./grid";
+
+export const grid = new Grid();
 export const globalContextHolder: { context: null | CanvasRenderingContext2D } =
   { context: null };
+
 function App() {
   useEffect(() => {
     const canvas = document.querySelector("canvas");
-    console.log(canvas);
     if (canvas === null) return;
     const context = canvas.getContext("2d");
     if (context === null) return;
     globalContextHolder.context = context;
 
-    drawGrid(grid, context);
+    grid.drawSelf(context);
   }, []);
 
   return (
