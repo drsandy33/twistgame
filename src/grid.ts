@@ -42,6 +42,7 @@ export class Grid {
     if (row === undefined) throw new Error("expected row does not exist");
     return row;
   }
+
   getJewelPixelPosition(row: number, column: number) {
     const rowHeight = this.pixelDimensions.height / this.cellDimensions.height;
     const columnWidth = this.pixelDimensions.width / this.cellDimensions.width;

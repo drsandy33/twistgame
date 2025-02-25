@@ -2,6 +2,7 @@ import { globalContextHolder, grid } from "./App";
 import "./App.css";
 import { JEWEL_DIAMETER, SELECT_GRID_SIZE } from "./app-consts";
 import { JewelQuartet, Point } from "./jewel-quartet";
+import { MatchChecker } from "./match-checker";
 interface SelectBoxProps {
   x: number;
   y: number;
@@ -16,14 +17,18 @@ export function SelectBox(selectBoxProps: SelectBoxProps) {
     if (context === null) return;
     grid.drawSelf(context);
   }
-
+  function handleMouseDown() {
+    quartet.rotate(grid);
+    const matchChecker = new MatchChecker(grid);
+    matchChecker.checkForMatches();
+  }
   return (
     <button
       className="select-box"
       style={{ height: JEWEL_DIAMETER, width: JEWEL_DIAMETER }}
       onMouseEnter={() => quartet.selectJewels(grid)}
       onMouseLeave={handleMouseLeave}
-      onMouseDown={() => quartet.rotate(grid)}
+      onMouseDown={handleMouseDown}
     >
       {selectBoxProps.x}, {selectBoxProps.y}
     </button>
