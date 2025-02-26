@@ -21,6 +21,9 @@ export function SelectBox(selectBoxProps: SelectBoxProps) {
     quartet.rotate(grid);
     const matchChecker = new MatchChecker(grid);
     matchChecker.checkForMatches();
+    const context = globalContextHolder.context;
+    if (context === null) return;
+    grid.drawSelf(context);
   }
   return (
     <button

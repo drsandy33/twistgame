@@ -42,7 +42,37 @@ export class Grid {
     if (row === undefined) throw new Error("expected row does not exist");
     return row;
   }
+  getAllJewels() {
+    const jewels: Jewel[] = [];
+    for (let i = 0; i < this.rows.length; i = i + 1) {
+      const row = this.getRow(i);
 
+      for (let j = 0; j < row.length; j = j + 1) {
+        const position = new Point(j, i);
+        const jewel = this.getJewelAtPosition(position);
+        jewels.push(jewel);
+      }
+    }
+    return jewels;
+  }
+  getColumns() {
+    const columns: Jewel[][] = [];
+    for (
+      let column = 0;
+      column < this.cellDimensions.width;
+      column = column + 1
+    ) {
+      const columnJewels: Jewel[] = [];
+      this.rows.forEach((row) => {
+        const jewel = row[column];
+        if (jewel === undefined)
+          throw new Error("expected jewel does not exist");
+        columnJewels.push(jewel);
+      });
+      columns.push(columnJewels);
+    }
+    return columns;
+  }
   getJewelPixelPosition(row: number, column: number) {
     const rowHeight = this.pixelDimensions.height / this.cellDimensions.height;
     const columnWidth = this.pixelDimensions.width / this.cellDimensions.width;
