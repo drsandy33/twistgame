@@ -1,4 +1,3 @@
-import { globalContextHolder } from "./App";
 import { Grid } from "./grid";
 
 export class Point {
@@ -23,9 +22,6 @@ export class JewelQuartet {
     grid.selectJewelAtPosition(this.topRightPosition);
     grid.selectJewelAtPosition(this.bottomLeftPosition);
     grid.selectJewelAtPosition(this.bottomRightPosition);
-    const context = globalContextHolder.context;
-    if (context === null) return;
-    grid.drawSelf(context);
   }
   rotate(grid: Grid) {
     const topLeftJewel = grid.getJewelAtPosition(this.topLeftPosition);
@@ -36,10 +32,5 @@ export class JewelQuartet {
     grid.putJewelInPosition(this.bottomRightPosition, topRightJewel);
     grid.putJewelInPosition(this.bottomLeftPosition, bottomRightJewel);
     grid.putJewelInPosition(this.topLeftPosition, bottomLeftJewel);
-
-    const context = globalContextHolder.context;
-    if (context === null) return;
-
-    grid.drawSelf(context);
   }
 }

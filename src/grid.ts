@@ -29,7 +29,8 @@ export class Grid {
     for (let i = 0; i < numRows; i = i + 1) {
       const row = [];
       for (let j = 0; j < numColumns; j = j + 1) {
-        const jewel = createJewel(0);
+        const jewelPlace = getJewelPixelPosition(j, i);
+        const jewel = createJewel(0, jewelPlace);
         row.push(jewel);
       }
       rows.push(row);
@@ -73,13 +74,7 @@ export class Grid {
     }
     return columns;
   }
-  getJewelPixelPosition(row: number, column: number) {
-    const rowHeight = this.pixelDimensions.height / this.cellDimensions.height;
-    const columnWidth = this.pixelDimensions.width / this.cellDimensions.width;
-    const x = columnWidth * column + columnWidth / 2;
-    const y = rowHeight * row + rowHeight / 2;
-    return { x, y };
-  }
+
   deselectAllJewels() {
     for (let i = 0; i < this.rows.length; i = i + 1) {
       const row = this.getRow(i);
@@ -102,8 +97,7 @@ export class Grid {
         const position = new Point(j, i);
         const jewel = this.getJewelAtPosition(position);
 
-        const jewelPlace = this.getJewelPixelPosition(i, j);
-        jewel.drawSelf(context, jewelPlace);
+        jewel.drawSelf(context);
       }
     }
   }
@@ -123,8 +117,17 @@ export class Grid {
     row[position.x] = jewel;
   }
 }
-function createJewel(_level: number) {
+function createJewel(_level: number, pixelPosition: Point) {
   const allColors = iterateNumericEnum(JewelColor);
   const randColor = chooseRandomFromArray(allColors);
-  return new Jewel(randColor, JewelType.Normal, 0);
+
+  return new Jewel(randColor, JewelType.Normal, 0, pixelPosition);
+}
+function getJewelPixelPosition(row: number, column: number) {
+  const rowHeight = GRID_PIXEL_DIMENSIONS.HEIGHT / GRID_CELL_DIMENSIONS.ROWS;
+  const columnWidth =
+    GRID_PIXEL_DIMENSIONS.WIDTH / GRID_CELL_DIMENSIONS.COLUMNS;
+  const x = columnWidth * column + columnWidth / 2;
+  const y = rowHeight * row + rowHeight / 2;
+  return { x, y };
 }

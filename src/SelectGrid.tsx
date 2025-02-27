@@ -1,4 +1,4 @@
-import { globalContextHolder, grid } from "./App";
+import { grid } from "./App";
 import "./App.css";
 import { JEWEL_DIAMETER, SELECT_GRID_SIZE } from "./app-consts";
 import { JewelQuartet, Point } from "./jewel-quartet";
@@ -13,17 +13,11 @@ export function SelectBox(selectBoxProps: SelectBoxProps) {
   );
   function handleMouseLeave() {
     grid.deselectAllJewels();
-    const context = globalContextHolder.context;
-    if (context === null) return;
-    grid.drawSelf(context);
   }
   function handleMouseDown() {
     quartet.rotate(grid);
     const matchChecker = new MatchChecker(grid);
     matchChecker.checkForMatches();
-    const context = globalContextHolder.context;
-    if (context === null) return;
-    grid.drawSelf(context);
   }
   return (
     <button

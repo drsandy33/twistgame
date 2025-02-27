@@ -1,4 +1,5 @@
 import { JEWEL_DIAMETER } from "../app-consts";
+import { Point } from "../jewel-quartet";
 
 export enum JewelType {
   Normal,
@@ -33,19 +34,25 @@ export class Jewel {
   count: number;
   isSelected: boolean = false;
   isPartOfMatch: boolean = false;
-  constructor(jewelColor: JewelColor, jewelType: JewelType, count: number) {
+  constructor(
+    jewelColor: JewelColor,
+    jewelType: JewelType,
+    count: number,
+    public pixelPosition: Point
+  ) {
     this.jewelColor = jewelColor;
     this.jewelType = jewelType;
     this.count = count;
   }
-  drawSelf(context: CanvasRenderingContext2D, place: { x: number; y: number }) {
+  drawSelf(context: CanvasRenderingContext2D) {
+    const { x, y } = this.pixelPosition;
     context.beginPath();
-    context.arc(place.x, place.y, JEWEL_DIAMETER / 2, 0, 2 * Math.PI);
+    context.arc(x, y, JEWEL_DIAMETER / 2, 0, 2 * Math.PI);
     context.fillStyle = JEWEL_COLOR_STRINGS[this.jewelColor];
     context.fill();
     if (this.isPartOfMatch) {
       context.beginPath();
-      context.arc(place.x, place.y, JEWEL_DIAMETER / 3, 0, 2 * Math.PI);
+      context.arc(x, y, JEWEL_DIAMETER / 3, 0, 2 * Math.PI);
       context.strokeStyle = "cyan";
       context.lineWidth = 10;
       context.stroke();
@@ -53,7 +60,7 @@ export class Jewel {
 
     if (this.isSelected === false) return;
     context.beginPath();
-    context.arc(place.x, place.y, JEWEL_DIAMETER / 2, 0, 2 * Math.PI);
+    context.arc(x, y, JEWEL_DIAMETER / 2, 0, 2 * Math.PI);
     context.strokeStyle = "white";
     context.lineWidth = 10;
     context.stroke();

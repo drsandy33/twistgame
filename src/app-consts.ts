@@ -6,3 +6,5 @@ export const SELECT_GRID_SIZE = {
 };
 export const JEWEL_DIAMETER =
   GRID_PIXEL_DIMENSIONS.HEIGHT / GRID_CELL_DIMENSIONS.ROWS;
+export const FPS = 30;
+export const RENDER_INTERVAL = 1000 / FPS;

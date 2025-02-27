@@ -1,3 +1,5 @@
+import { Point } from "./jewel-quartet";
+
 export function removeFromArray<T>(array: T[], item: T): undefined | T {
   const indexToRemove = array.indexOf(item);
   if (indexToRemove !== -1) {
@@ -5,11 +7,17 @@ export function removeFromArray<T>(array: T[], item: T): undefined | T {
   }
 }
 
-export function iterateNumericEnum<T extends { [name: string]: string | number }>(enumType: T): T[keyof T][] {
-  return Object.values(enumType).filter((value) => !isNaN(Number(value))) as T[keyof T][];
+export function iterateNumericEnum<
+  T extends { [name: string]: string | number }
+>(enumType: T): T[keyof T][] {
+  return Object.values(enumType).filter(
+    (value) => !isNaN(Number(value))
+  ) as T[keyof T][];
 }
 
-export function iterateNumericEnumKeyedRecord<T extends string | number, U>(record: Partial<Record<T, U>>): [T, U][] {
+export function iterateNumericEnumKeyedRecord<T extends string | number, U>(
+  record: Partial<Record<T, U>>
+): [T, U][] {
   return Object.entries(record)
     .filter(([key, value]) => value !== undefined)
     .map(([key, value]) => [parseInt(key) as T, value as U]);
@@ -35,7 +43,8 @@ export function chooseRandomFromArray<T>(arr: T[]): T {
   if (arr.length < 1) throw new Error("Array is empty");
   const randomIndex = randBetween(0, arr.length - 1);
   const randomMember = arr[randomIndex];
-  if (randomMember === undefined) throw new Error("Somehow randomly chose undefined from array");
+  if (randomMember === undefined)
+    throw new Error("Somehow randomly chose undefined from array");
   return randomMember;
 }
 
@@ -62,4 +71,25 @@ export class SequentialIdGenerator {
   getNextIdNumeric() {
     return this.nextId++;
   }
+}
+export function pythagorean(a: number, b: number): number {
+  return Math.sqrt(a * a + b * b);
+}
+
+export function lerpAngle(start: number, end: number, t: number) {
+  const twoPi = Math.PI * 2;
+  let delta = (end - start) % twoPi; // Calculate the difference
+  if (delta > Math.PI) delta -= twoPi; // Wrap around if necessary
+  if (delta < -Math.PI) delta += twoPi; // Wrap around if necessary
+  return start + delta * t; // Interpolate
+}
+
+export function getOrbitPosition(center: Point, radius: number, angle: number) {
+  const x = center.x + radius * Math.cos(angle);
+  const y = center.y + radius * Math.sin(angle);
+  return new Point(x, y);
+}
+
+export function easeInOut(t: number) {
+  return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
 }
