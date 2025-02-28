@@ -1,7 +1,7 @@
 import { Jewel } from ".";
 import { JEWEL_DIAMETER } from "../app-consts";
 import { Point } from "../jewel-quartet";
-import { getOrbitPosition, lerpAngle, pythagorean } from "../utils";
+import { easeInOut, getOrbitPosition, lerpAngle, pythagorean } from "../utils";
 
 export type Milliseconds = number;
 export type Radians = number;
@@ -20,15 +20,20 @@ export class RotationAnimation {
   update() {
     const elapsed = Date.now() - this.timeStarted;
     const percentElapsed = elapsed / this.duration;
+    const cappedPercentElapsed = Math.min(1, percentElapsed);
+
+    const newAngle = lerpAngle(
+      this.originalAngle,
+      this.destinationAngle,
+      easeInOut(cappedPercentElapsed)
+    );
+    const newPosition = getOrbitPosition(this.center, this.radius, newAngle);
+    this.jewel.pixelPosition.x = newPosition.x;
+    this.jewel.pixelPosition.y = newPosition.y;
+
     if (percentElapsed >= 1) {
       this.onComplete();
       return true;
     }
-    const newAngle = lerpAngle(
-      this.originalAngle,
-      this.destinationAngle,
-      percentElapsed
-    );
-    const newPosition = getOrbitPosition(this.center, this.radius, newAngle);
   }
 }

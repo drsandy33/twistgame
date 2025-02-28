@@ -1,4 +1,5 @@
 import { Point } from "./jewel-quartet";
+import { Radians } from "./jewel/rotation-animation";
 
 export function removeFromArray<T>(array: T[], item: T): undefined | T {
   const indexToRemove = array.indexOf(item);
@@ -92,4 +93,39 @@ export function getOrbitPosition(center: Point, radius: number, angle: number) {
 
 export function easeInOut(t: number) {
   return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+}
+export function findHypoteneuseCenterPoint(
+  a: number,
+  b: number,
+  topLeftPosition: Point
+) {
+  const halfHypoteneuse = pythagorean(a, b) / 2;
+  return new Point(
+    topLeftPosition.x + halfHypoteneuse,
+    topLeftPosition.y + halfHypoteneuse
+  );
+}
+export function calculateAngle(center: Point, point: Point): Radians {
+  const dx = point.x - center.x;
+  const dy = point.y - center.y;
+  const angle = Math.atan2(dy, dx);
+  return angle;
+}
+export function calculateCenter(points: Point[]): Point {
+  if (points.length === 0) {
+    throw new Error("No points provided");
+  }
+
+  let sumX = 0;
+  let sumY = 0;
+
+  for (const point of points) {
+    sumX += point.x;
+    sumY += point.y;
+  }
+
+  const centerX = sumX / points.length;
+  const centerY = sumY / points.length;
+
+  return { x: centerX, y: centerY };
 }

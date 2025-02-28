@@ -1,5 +1,6 @@
 import { JEWEL_DIAMETER } from "../app-consts";
 import { Point } from "../jewel-quartet";
+import { RotationAnimation } from "./rotation-animation";
 
 export enum JewelType {
   Normal,
@@ -34,6 +35,7 @@ export class Jewel {
   count: number;
   isSelected: boolean = false;
   isPartOfMatch: boolean = false;
+  rotationAnimation: null | RotationAnimation = null;
   constructor(
     jewelColor: JewelColor,
     jewelType: JewelType,
