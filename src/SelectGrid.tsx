@@ -16,8 +16,6 @@ export function SelectBox(selectBoxProps: SelectBoxProps) {
   }
   function handleMouseDown() {
     quartet.rotate(grid);
-    const matchChecker = new MatchChecker(grid);
-    matchChecker.checkForMatches();
   }
   return (
     <button

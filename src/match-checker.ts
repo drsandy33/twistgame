@@ -1,6 +1,7 @@
 import { Grid } from "./grid";
 import { Jewel, JewelColor } from "./jewel";
 import { Point } from "./jewel-quartet";
+import { FadeoutAnimation } from "./jewel/fadeout-animation";
 
 enum Axis {
   Row,
@@ -24,6 +25,7 @@ export class MatchChecker {
       match.forEach((jewelPosition) => {
         const jewel = this.grid.getJewelAtPosition(jewelPosition);
         jewel.isPartOfMatch = true;
+        jewel.fadeoutAnimation = new FadeoutAnimation(jewel, () => {});
       });
     });
   }

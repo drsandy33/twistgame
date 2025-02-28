@@ -1,6 +1,8 @@
+import { ROTATION_ANIMATION_DURATION } from "./app-consts";
 import { Grid } from "./grid";
 import { Jewel } from "./jewel";
 import { RotationAnimation } from "./jewel/rotation-animation";
+import { MatchChecker } from "./match-checker";
 import {
   calculateAngle,
   calculateCenter,
@@ -63,23 +65,14 @@ export class JewelQuartet {
       rotationCenter,
       topLeftJewel.pixelPosition
     );
-
+    setTimeout(() => {
+      const matchChecker = new MatchChecker(grid);
+      matchChecker.checkForMatches();
+    }, ROTATION_ANIMATION_DURATION);
     grid.putJewelInPosition(this.topRightPosition, topLeftJewel);
     grid.putJewelInPosition(this.bottomRightPosition, topRightJewel);
     grid.putJewelInPosition(this.bottomLeftPosition, bottomRightJewel);
     grid.putJewelInPosition(this.topLeftPosition, bottomLeftJewel);
-  }
-  drawSelf(grid: Grid) {
-    const topLeftJewel = grid.getJewelAtPosition(this.topLeftPosition);
-    const topRightJewel = grid.getJewelAtPosition(this.topRightPosition);
-    const bottomLeftJewel = grid.getJewelAtPosition(this.bottomLeftPosition);
-    const bottomRightJewel = grid.getJewelAtPosition(this.bottomRightPosition);
-    const rotationCenter = calculateCenter([
-      topLeftJewel.pixelPosition,
-      topRightJewel.pixelPosition,
-      bottomRightJewel.pixelPosition,
-      bottomRightJewel.pixelPosition,
-    ]);
   }
 }
 function startRotationAnimation(

@@ -1,5 +1,7 @@
 import { JEWEL_DIAMETER } from "../app-consts";
 import { Point } from "../jewel-quartet";
+import { hexToRgba } from "../utils";
+import { FadeoutAnimation } from "./fadeout-animation";
 import { RotationAnimation } from "./rotation-animation";
 
 export enum JewelType {
@@ -36,6 +38,8 @@ export class Jewel {
   isSelected: boolean = false;
   isPartOfMatch: boolean = false;
   rotationAnimation: null | RotationAnimation = null;
+  fadeoutAnimation: null | FadeoutAnimation = null;
+  opacity: number = 1;
   constructor(
     jewelColor: JewelColor,
     jewelType: JewelType,
@@ -50,7 +54,8 @@ export class Jewel {
     const { x, y } = this.pixelPosition;
     context.beginPath();
     context.arc(x, y, JEWEL_DIAMETER / 2, 0, 2 * Math.PI);
-    context.fillStyle = JEWEL_COLOR_STRINGS[this.jewelColor];
+    const colorRgba = hexToRgba(JEWEL_COLOR_STRINGS[this.jewelColor], 1);
+    context.fillStyle = colorRgba;
     context.fill();
     if (this.isPartOfMatch) {
       context.beginPath();

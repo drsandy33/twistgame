@@ -1,5 +1,5 @@
 import { Jewel } from ".";
-import { JEWEL_DIAMETER } from "../app-consts";
+import { JEWEL_DIAMETER, ROTATION_ANIMATION_DURATION } from "../app-consts";
 import { Point } from "../jewel-quartet";
 import { easeInOut, getOrbitPosition, lerpAngle, pythagorean } from "../utils";
 
@@ -8,7 +8,7 @@ export type Radians = number;
 
 export class RotationAnimation {
   timeStarted: Milliseconds = Date.now();
-  duration: Milliseconds = 500;
+  duration: Milliseconds = ROTATION_ANIMATION_DURATION;
   radius: number = pythagorean(JEWEL_DIAMETER, JEWEL_DIAMETER) / 2;
   constructor(
     private center: Point,
