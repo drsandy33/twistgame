@@ -2,7 +2,7 @@ import { grid } from "./App";
 import "./App.css";
 import { JEWEL_DIAMETER, SELECT_GRID_SIZE } from "./app-consts";
 import { JewelQuartet, Point } from "./jewel-quartet";
-import { MatchChecker } from "./match-checker";
+
 interface SelectBoxProps {
   x: number;
   y: number;
@@ -15,6 +15,7 @@ export function SelectBox(selectBoxProps: SelectBoxProps) {
     grid.deselectAllJewels();
   }
   function handleMouseDown() {
+    if (quartet.isRotating(grid)) return;
     quartet.rotate(grid);
   }
   return (
@@ -24,9 +25,7 @@ export function SelectBox(selectBoxProps: SelectBoxProps) {
       onMouseEnter={() => quartet.selectJewels(grid)}
       onMouseLeave={handleMouseLeave}
       onMouseDown={handleMouseDown}
-    >
-      {selectBoxProps.x}, {selectBoxProps.y}
-    </button>
+    ></button>
   );
 }
 export function SelectGrid() {

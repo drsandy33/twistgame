@@ -9,11 +9,13 @@
 .canvas {
   height: 500px;
   width: 500px;
-  background: #789;
+  background: rgb(223, 228, 232);
 
   display: block;
 }
 .select-box {
+  background-color: transparent;
+  border: 0px;
 }
 .all-grids {
   position: relative;

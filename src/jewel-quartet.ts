@@ -32,7 +32,13 @@ export class JewelQuartet {
     grid.selectJewelAtPosition(this.bottomLeftPosition);
     grid.selectJewelAtPosition(this.bottomRightPosition);
   }
-
+  getJewels(grid: Grid) {
+    const topLeftJewel = grid.getJewelAtPosition(this.topLeftPosition);
+    const topRightJewel = grid.getJewelAtPosition(this.topRightPosition);
+    const bottomLeftJewel = grid.getJewelAtPosition(this.bottomLeftPosition);
+    const bottomRightJewel = grid.getJewelAtPosition(this.bottomRightPosition);
+    return [topLeftJewel, topRightJewel, bottomLeftJewel, bottomRightJewel];
+  }
   rotate(grid: Grid) {
     const topLeftJewel = grid.getJewelAtPosition(this.topLeftPosition);
     const topRightJewel = grid.getJewelAtPosition(this.topRightPosition);
@@ -73,6 +79,12 @@ export class JewelQuartet {
     grid.putJewelInPosition(this.bottomRightPosition, topRightJewel);
     grid.putJewelInPosition(this.bottomLeftPosition, bottomRightJewel);
     grid.putJewelInPosition(this.topLeftPosition, bottomLeftJewel);
+  }
+  isRotating(grid: Grid) {
+    for (const jewel of this.getJewels(grid)) {
+      if (jewel.rotationAnimation) return true;
+    }
+    return false;
   }
 }
 function startRotationAnimation(

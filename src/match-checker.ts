@@ -8,6 +8,18 @@ enum Axis {
   Column,
 }
 
+class MatchCandidate {
+  jewelColor: null | JewelColor = null;
+  jewelPositions: Point[] = [];
+  constructor(initialPoint?: Point, initialColor?: JewelColor) {
+    if (initialPoint) this.jewelPositions.push(initialPoint);
+    if (initialColor !== undefined) this.jewelColor = initialColor;
+  }
+  isMatch() {
+    return this.jewelPositions.length >= 3;
+  }
+}
+
 export class MatchChecker {
   constructor(private grid: Grid) {}
   checkForMatches() {
@@ -31,16 +43,10 @@ export class MatchChecker {
   }
   checkAxisForMatches(axis: Jewel[][], axisType: Axis) {
     const matches: Point[][] = [];
-    let currentMatchCandidate: {
-      jewelColor: null | JewelColor;
-      jewelPositions: Point[];
-    } = { jewelColor: null, jewelPositions: [] };
+    let currentMatchCandidate = new MatchCandidate();
 
     axis.forEach((list, listIndex) => {
-      currentMatchCandidate = {
-        jewelColor: null,
-        jewelPositions: [],
-      };
+      currentMatchCandidate = new MatchCandidate();
       list.forEach((jewel, jewelIndex) => {
         const x = axisType === Axis.Column ? listIndex : jewelIndex;
         const y = axisType === Axis.Row ? listIndex : jewelIndex;
@@ -51,14 +57,22 @@ export class MatchChecker {
         }
         if (currentMatchCandidate.jewelColor === jewel.jewelColor) {
           currentMatchCandidate.jewelPositions.push(position);
+
+          if (
+            jewelIndex === list.length - 1 &&
+            currentMatchCandidate.isMatch()
+          ) {
+            matches.push(currentMatchCandidate.jewelPositions);
+            currentMatchCandidate = new MatchCandidate();
+          }
         } else {
-          if (currentMatchCandidate.jewelPositions.length > 2) {
+          if (currentMatchCandidate.isMatch()) {
             matches.push(currentMatchCandidate.jewelPositions);
           }
-          currentMatchCandidate = {
-            jewelColor: jewel.jewelColor,
-            jewelPositions: [position],
-          };
+          currentMatchCandidate = new MatchCandidate(
+            position,
+            jewel.jewelColor
+          );
         }
       });
     });
