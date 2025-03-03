@@ -3,6 +3,7 @@ import { JEWEL_DIAMETER } from "../app-consts";
 import { Point } from "../jewel-quartet";
 import { hexToRgba } from "../utils";
 import { FadeoutAnimation } from "./fadeout-animation";
+import { FallingAnimation } from "./falling-animation";
 import { RotationAnimation } from "./rotation-animation";
 
 export enum JewelType {
@@ -52,6 +53,7 @@ export class Jewel {
   isPartOfMatch: boolean = false;
   rotationAnimation: null | RotationAnimation = null;
   fadeoutAnimation: null | FadeoutAnimation = null;
+  fallingAnimation: null | FallingAnimation = null;
   opacity: number = 1;
   constructor(
     jewelColor: JewelColor,
@@ -76,6 +78,7 @@ export class Jewel {
       const aspectRatio = image.width / image.height;
       const desiredHeight = JEWEL_DIAMETER;
       const desiredWidth = JEWEL_DIAMETER * aspectRatio;
+      context.globalAlpha = this.opacity;
       context.drawImage(
         image,
         x - desiredWidth / 2,
@@ -83,6 +86,7 @@ export class Jewel {
         desiredWidth,
         desiredHeight
       );
+      context.globalAlpha = 1;
     }
     if (this.isPartOfMatch) {
       context.beginPath();

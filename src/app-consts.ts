@@ -9,4 +9,5 @@ export const JEWEL_DIAMETER =
 export const FPS = 30;
 export const RENDER_INTERVAL = 1000 / FPS;
 export const ROTATION_ANIMATION_DURATION = 150;
-export const FADEOUT_ANIMATION_DURATION = 350;
+export const FADEOUT_ANIMATION_DURATION = 250;
+export const FALLING_ANIMATION_DURATION = 5000;

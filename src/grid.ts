@@ -1,4 +1,5 @@
 import { GRID_CELL_DIMENSIONS, GRID_PIXEL_DIMENSIONS } from "./app-consts";
+import { GridRefiller } from "./grid-refiller";
 import { Jewel, JewelColor, JewelType } from "./jewel";
 import { Point } from "./jewel-quartet";
 import { iterateNumericEnum, chooseRandomFromArray } from "./utils";
@@ -10,6 +11,7 @@ export class Grid {
   rows: Jewel[][];
   pixelDimensions: Dimensions;
   cellDimensions: Dimensions;
+
   constructor() {
     this.cellDimensions = {
       width: GRID_CELL_DIMENSIONS.COLUMNS,
@@ -117,13 +119,13 @@ export class Grid {
     row[position.x] = jewel;
   }
 }
-function createJewel(_level: number, pixelPosition: Point) {
+export function createJewel(_level: number, pixelPosition: Point) {
   const allColors = iterateNumericEnum(JewelColor);
   const randColor = chooseRandomFromArray(allColors);
 
   return new Jewel(randColor, JewelType.Normal, 0, pixelPosition);
 }
-function getJewelPixelPosition(row: number, column: number) {
+export function getJewelPixelPosition(row: number, column: number) {
   const rowHeight = GRID_PIXEL_DIMENSIONS.HEIGHT / GRID_CELL_DIMENSIONS.ROWS;
   const columnWidth =
     GRID_PIXEL_DIMENSIONS.WIDTH / GRID_CELL_DIMENSIONS.COLUMNS;

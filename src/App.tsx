@@ -7,8 +7,10 @@ import { updateCanvas } from "./update-canvas";
 import { ImageManager } from "./image-manager";
 import { JEWEL_COLOR_URLS } from "./jewel";
 import { MatchChecker } from "./match-checker";
+import { GridRefiller } from "./grid-refiller";
 
 export const grid = new Grid();
+export const gridRefiller = new GridRefiller(grid);
 export const globalContextHolder: { context: null | CanvasRenderingContext2D } =
   { context: null };
 export const imageManager = new ImageManager();
@@ -39,6 +41,9 @@ function App() {
     const context = canvas.getContext("2d");
     if (context === null) return;
     globalContextHolder.context = context;
+    //context.translate(0, 100);
+
+    gridRefiller.createReplacements();
 
     const matchChecker = new MatchChecker(grid);
     matchChecker.checkForMatches();

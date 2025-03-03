@@ -1,3 +1,4 @@
+import { gridRefiller } from "./App";
 import { ROTATION_ANIMATION_DURATION } from "./app-consts";
 import { Grid } from "./grid";
 import { Jewel } from "./jewel";
@@ -74,6 +75,7 @@ export class JewelQuartet {
     setTimeout(() => {
       const matchChecker = new MatchChecker(grid);
       matchChecker.checkForMatches();
+      gridRefiller.createReplacements();
     }, ROTATION_ANIMATION_DURATION);
     grid.putJewelInPosition(this.topRightPosition, topLeftJewel);
     grid.putJewelInPosition(this.bottomRightPosition, topRightJewel);
@@ -96,7 +98,7 @@ function startRotationAnimation(
     rotationCenter,
     jewelToRotate.pixelPosition
   );
-  console.log(originalAngle);
+
   const destinationAngle = calculateAngle(rotationCenter, destinationPosition);
   jewelToRotate.rotationAnimation = new RotationAnimation(
     rotationCenter,
