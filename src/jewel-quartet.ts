@@ -1,5 +1,6 @@
-import { gridRefiller } from "./App";
+import { gridRefiller, inputManager } from "./App";
 import { ROTATION_ANIMATION_DURATION } from "./app-consts";
+import { evaluateAndUpdateGrid } from "./evaluate-and-update-grid";
 import { Grid } from "./grid";
 import { Jewel } from "./jewel";
 import { RotationAnimation } from "./jewel/rotation-animation";
@@ -41,6 +42,7 @@ export class JewelQuartet {
     return [topLeftJewel, topRightJewel, bottomLeftJewel, bottomRightJewel];
   }
   rotate(grid: Grid) {
+    inputManager.isLocked = true;
     const topLeftJewel = grid.getJewelAtPosition(this.topLeftPosition);
     const topRightJewel = grid.getJewelAtPosition(this.topRightPosition);
     const bottomLeftJewel = grid.getJewelAtPosition(this.bottomLeftPosition);
@@ -73,9 +75,7 @@ export class JewelQuartet {
       topLeftJewel.pixelPosition
     );
     setTimeout(() => {
-      const matchChecker = new MatchChecker(grid);
-      matchChecker.checkForMatches();
-      gridRefiller.createReplacements();
+      evaluateAndUpdateGrid();
     }, ROTATION_ANIMATION_DURATION);
     grid.putJewelInPosition(this.topRightPosition, topLeftJewel);
     grid.putJewelInPosition(this.bottomRightPosition, topRightJewel);

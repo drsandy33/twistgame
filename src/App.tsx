@@ -8,9 +8,13 @@ import { ImageManager } from "./image-manager";
 import { JEWEL_COLOR_URLS } from "./jewel";
 import { MatchChecker } from "./match-checker";
 import { GridRefiller } from "./grid-refiller";
+import { AnimationRegistry } from "./animation-registry";
 
 export const grid = new Grid();
+export const matchChecker = new MatchChecker(grid);
 export const gridRefiller = new GridRefiller(grid);
+export const inputManager = { isLocked: false };
+export const animationRegistry = new AnimationRegistry();
 export const globalContextHolder: { context: null | CanvasRenderingContext2D } =
   { context: null };
 export const imageManager = new ImageManager();
@@ -43,9 +47,8 @@ function App() {
     globalContextHolder.context = context;
     //context.translate(0, 100);
 
-    gridRefiller.createReplacements();
+    //gridRefiller.createReplacements();
 
-    const matchChecker = new MatchChecker(grid);
     matchChecker.checkForMatches();
 
     animationFrameRef.current = requestAnimationFrame((timestamp) => {

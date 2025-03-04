@@ -3,6 +3,8 @@ import { createJewel, getJewelPixelPosition, Grid } from "./grid";
 import { Jewel } from "./jewel";
 import { Point } from "./jewel-quartet";
 import { FallingAnimation } from "./jewel/falling-animation";
+import { animationRegistry } from "./App";
+import { evaluateAndUpdateGrid } from "./evaluate-and-update-grid";
 
 export class GridRefiller {
   replacements: null | Jewel[][] = null;
@@ -53,15 +55,17 @@ export class GridRefiller {
         const currentJewel = combinedColumn.pop();
         rowIndex = rowIndex - 1;
         if (currentJewel === undefined) break;
+        const currentJewelCellPosition = new Point(i, rowIndex);
         if (currentJewel.isPartOfMatch)
           unassignedEmptyPositions.push({
             pixelPosition: cloneDeep(currentJewel.pixelPosition),
-            cellPosition: new Point(i, rowIndex),
+            cellPosition: currentJewelCellPosition,
           });
         else if (unassignedEmptyPositions.length > 0) {
           const positionToAssign = unassignedEmptyPositions.shift();
           if (positionToAssign === undefined)
             throw new Error("position to assign not found");
+          animationRegistry.register(currentJewelCellPosition);
           currentJewel.fallingAnimation = new FallingAnimation(
             cloneDeep(currentJewel.pixelPosition),
             positionToAssign.pixelPosition,
@@ -71,6 +75,9 @@ export class GridRefiller {
                 positionToAssign.cellPosition,
                 currentJewel
               );
+              animationRegistry.unregister(currentJewelCellPosition);
+              const allFallingAnimationsFinished = animationRegistry.isEmpty();
+              if (allFallingAnimationsFinished) evaluateAndUpdateGrid();
             }
           );
 

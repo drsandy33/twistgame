@@ -40,6 +40,7 @@ export class MatchChecker {
         jewel.fadeoutAnimation = new FadeoutAnimation(jewel, () => {});
       });
     });
+    return matches;
   }
   checkAxisForMatches(axis: Jewel[][], axisType: Axis) {
     const matches: Point[][] = [];

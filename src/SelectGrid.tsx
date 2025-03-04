@@ -1,4 +1,4 @@
-import { grid } from "./App";
+import { animationRegistry, grid, inputManager } from "./App";
 import "./App.css";
 import { JEWEL_DIAMETER, SELECT_GRID_SIZE } from "./app-consts";
 import { JewelQuartet, Point } from "./jewel-quartet";
@@ -15,6 +15,7 @@ export function SelectBox(selectBoxProps: SelectBoxProps) {
     grid.deselectAllJewels();
   }
   function handleMouseDown() {
+    if (inputManager.isLocked) return;
     if (quartet.isRotating(grid)) return;
     quartet.rotate(grid);
   }
