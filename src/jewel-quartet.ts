@@ -1,18 +1,16 @@
-import { gridRefiller, inputManager } from "./App";
+import { inputManager } from "./App";
 import { ROTATION_ANIMATION_DURATION } from "./app-consts";
 import { evaluateAndUpdateGrid } from "./evaluate-and-update-grid";
 import { Grid } from "./grid";
 import { Jewel } from "./jewel";
 import { RotationAnimation } from "./jewel/rotation-animation";
-import { MatchChecker } from "./match-checker";
-import {
-  calculateAngle,
-  calculateCenter,
-  findHypoteneuseCenterPoint,
-} from "./utils";
+import { calculateAngle, calculateCenter } from "./utils";
 
 export class Point {
-  constructor(public x: number, public y: number) {}
+  constructor(
+    public x: number,
+    public y: number
+  ) {}
 }
 export class JewelQuartet {
   public topLeftPosition: Point;
@@ -76,7 +74,7 @@ export class JewelQuartet {
     );
     setTimeout(() => {
       evaluateAndUpdateGrid();
-    }, ROTATION_ANIMATION_DURATION);
+    }, ROTATION_ANIMATION_DURATION + 10);
     grid.putJewelInPosition(this.topRightPosition, topLeftJewel);
     grid.putJewelInPosition(this.bottomRightPosition, topRightJewel);
     grid.putJewelInPosition(this.bottomLeftPosition, bottomRightJewel);
