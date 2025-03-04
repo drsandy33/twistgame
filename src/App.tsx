@@ -14,6 +14,7 @@ export const grid = new Grid();
 export const matchChecker = new MatchChecker(grid);
 export const gridRefiller = new GridRefiller(grid);
 export const inputManager = { isLocked: false };
+export const gridUpdater = { shouldUpdateOnNextFrame: false };
 export const animationRegistry = new AnimationRegistry();
 export const globalContextHolder: { context: null | CanvasRenderingContext2D } =
   { context: null };

@@ -3,7 +3,7 @@ import { createJewel, getJewelPixelPosition, Grid } from "./grid";
 import { Jewel } from "./jewel";
 import { Point } from "./jewel-quartet";
 import { FallingAnimation } from "./jewel/falling-animation";
-import { animationRegistry } from "./App";
+import { animationRegistry, gridUpdater } from "./App";
 import { evaluateAndUpdateGrid } from "./evaluate-and-update-grid";
 
 export class GridRefiller {
@@ -44,13 +44,16 @@ export class GridRefiller {
       const replacementColumn = this.replacements[i];
       if (replacementColumn === undefined)
         throw new Error("replacement column not found");
+
       const combinedColumn = replacementColumn.concat(column);
 
       const unassignedEmptyPositions: {
         pixelPosition: Point;
         cellPosition: Point;
       }[] = [];
+
       let rowIndex = column.length;
+
       while (combinedColumn.length > 0) {
         const currentJewel = combinedColumn.pop();
         rowIndex = rowIndex - 1;
@@ -77,7 +80,8 @@ export class GridRefiller {
               );
               animationRegistry.unregister(currentJewelCellPosition);
               const allFallingAnimationsFinished = animationRegistry.isEmpty();
-              if (allFallingAnimationsFinished) evaluateAndUpdateGrid();
+              if (allFallingAnimationsFinished)
+                gridUpdater.shouldUpdateOnNextFrame = true;
             }
           );
 
