@@ -1,10 +1,10 @@
 import { Jewel } from ".";
 import { FALLING_ANIMATION_DURATION } from "../app-consts";
 import { Point } from "../jewel-quartet";
-import { easeInOut, getOrbitPosition, lerp, lerpAngle } from "../utils";
-import { Milliseconds, Radians } from "./rotation-animation";
+import { lerp } from "../utils";
+import { Milliseconds } from "./rotation-animation";
 
-export class FallingAnimation {
+export class TranslationAnimation {
   timeStarted: Milliseconds = Date.now();
   duration: Milliseconds = FALLING_ANIMATION_DURATION;
 

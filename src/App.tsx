@@ -5,10 +5,14 @@ import { SelectGrid } from "./SelectGrid";
 import { Grid } from "./grid";
 import { updateCanvas } from "./update-canvas";
 import { ImageManager } from "./image-manager";
-import { JEWEL_COLOR_URLS } from "./jewel";
+
 import { MatchChecker } from "./match-checker";
 import { GridRefiller } from "./grid-refiller";
 import { AnimationRegistry } from "./animation-registry";
+import {
+  JEWEL_COLOR_URLS,
+  JEWEL_TYPE_INDICATOR_URLS,
+} from "./jewel/jewel-consts";
 
 export const grid = new Grid();
 export const matchChecker = new MatchChecker(grid);
@@ -34,7 +38,9 @@ function App() {
   }
   useEffect(() => {
     const jewelImageURLs = Object.values(JEWEL_COLOR_URLS);
-    imageManager.loadImages(jewelImageURLs, () => {
+    const indicatorURLs = Object.values(JEWEL_TYPE_INDICATOR_URLS);
+    const allURLs = jewelImageURLs.concat(indicatorURLs);
+    imageManager.loadImages(allURLs, () => {
       setLoading(false);
     });
   }, []);

@@ -1,7 +1,8 @@
 import { GRID_CELL_DIMENSIONS, GRID_PIXEL_DIMENSIONS } from "./app-consts";
-import { GridRefiller } from "./grid-refiller";
-import { Jewel, JewelColor, JewelType } from "./jewel";
+
+import { Jewel } from "./jewel";
 import { Point } from "./jewel-quartet";
+import { JewelColor, JewelType } from "./jewel/jewel-consts";
 import { iterateNumericEnum, chooseRandomFromArray } from "./utils";
 export interface Dimensions {
   width: number;

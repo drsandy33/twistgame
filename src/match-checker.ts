@@ -37,7 +37,6 @@ export class MatchChecker {
       match.forEach((jewelPosition) => {
         const jewel = this.grid.getJewelAtPosition(jewelPosition);
         jewel.isPartOfMatch = true;
-        jewel.fadeoutAnimation = new FadeoutAnimation(jewel, () => {});
       });
     });
     return matches;

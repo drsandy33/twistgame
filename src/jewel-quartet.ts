@@ -45,12 +45,16 @@ export class JewelQuartet {
     const topRightJewel = grid.getJewelAtPosition(this.topRightPosition);
     const bottomLeftJewel = grid.getJewelAtPosition(this.bottomLeftPosition);
     const bottomRightJewel = grid.getJewelAtPosition(this.bottomRightPosition);
-    const rotationCenter = calculateCenter([
+    const rotationParticipants = [
       topLeftJewel.pixelPosition,
       topRightJewel.pixelPosition,
       bottomRightJewel.pixelPosition,
       bottomLeftJewel.pixelPosition,
-    ]);
+    ];
+    const rotationCenter = calculateCenter(rotationParticipants);
+    rotationParticipants.forEach((jewel) => {
+      jewel.justMoved = true;
+    });
 
     startRotationAnimation(
       topLeftJewel,

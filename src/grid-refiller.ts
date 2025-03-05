@@ -2,9 +2,8 @@ import cloneDeep from "lodash.clonedeep";
 import { createJewel, getJewelPixelPosition, Grid } from "./grid";
 import { Jewel } from "./jewel";
 import { Point } from "./jewel-quartet";
-import { FallingAnimation } from "./jewel/falling-animation";
+import { TranslationAnimation } from "./jewel/translation-animation";
 import { animationRegistry, gridUpdater } from "./App";
-import { evaluateAndUpdateGrid } from "./evaluate-and-update-grid";
 
 export class GridRefiller {
   replacements: null | Jewel[][] = null;
@@ -69,7 +68,8 @@ export class GridRefiller {
           if (positionToAssign === undefined)
             throw new Error("position to assign not found");
           animationRegistry.register(currentJewelCellPosition);
-          currentJewel.fallingAnimation = new FallingAnimation(
+          currentJewel.justMoved = true;
+          currentJewel.fallingAnimation = new TranslationAnimation(
             cloneDeep(currentJewel.pixelPosition),
             positionToAssign.pixelPosition,
             currentJewel,

@@ -27,6 +27,10 @@ export function updateCanvas(context: CanvasRenderingContext2D) {
       const fallingAnimationIsComplete = jewel.fallingAnimation?.update();
       if (fallingAnimationIsComplete) jewel.fallingAnimation = null;
     }
+    if (jewel.coalescingAnimation) {
+      const coalescingAnimationIsComplete = jewel.coalescingAnimation?.update();
+      if (coalescingAnimationIsComplete) jewel.coalescingAnimation = null;
+    }
   });
   grid.drawSelf(context);
   gridRefiller.replacements?.forEach((column) => {
