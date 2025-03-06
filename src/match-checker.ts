@@ -1,7 +1,7 @@
 import { Grid } from "./grid";
-import { Jewel, JewelColor } from "./jewel";
+import { Jewel } from "./jewel";
 import { Point } from "./jewel-quartet";
-import { FadeoutAnimation } from "./jewel/fadeout-animation";
+import { JewelColor } from "./jewel/jewel-consts";
 
 enum Axis {
   Row,
@@ -23,11 +23,6 @@ class MatchCandidate {
 export class MatchChecker {
   constructor(private grid: Grid) {}
   checkForMatches() {
-    const jewels = this.grid.getAllJewels();
-    jewels.forEach((jewel) => {
-      jewel.isPartOfMatch = false;
-    });
-
     const rowMatches = this.checkAxisForMatches(this.grid.rows, Axis.Row);
 
     const columns = this.grid.getColumns();

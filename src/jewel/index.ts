@@ -18,6 +18,7 @@ export class Jewel {
   count: number;
   isSelected: boolean = false;
   isPartOfMatch: boolean = false;
+  shouldBeReplaced: boolean = false;
   justMoved: boolean = false;
   rotationAnimation: null | RotationAnimation = null;
   fadeoutAnimation: null | FadeoutAnimation = null;

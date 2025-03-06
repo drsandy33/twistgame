@@ -1,9 +1,11 @@
+import { SetStateAction } from "react";
 import { GRID_CELL_DIMENSIONS, GRID_PIXEL_DIMENSIONS } from "./app-consts";
 
 import { Jewel } from "./jewel";
 import { Point } from "./jewel-quartet";
 import { JewelColor, JewelType } from "./jewel/jewel-consts";
 import { iterateNumericEnum, chooseRandomFromArray } from "./utils";
+import { GameEventType } from "./game-event-manager";
 export interface Dimensions {
   width: number;
   height: number;
@@ -12,6 +14,10 @@ export class Grid {
   rows: Jewel[][];
   pixelDimensions: Dimensions;
   cellDimensions: Dimensions;
+  numJewelsSetter: React.Dispatch<SetStateAction<number>> | null = null;
+  currentlyProcessingGameEventTypeSetter: React.Dispatch<
+    SetStateAction<GameEventType | null>
+  > | null = null;
 
   constructor() {
     this.cellDimensions = {
@@ -90,6 +96,16 @@ export class Grid {
       }
     }
   }
+
+  markMatchedJewels(matches: Point[][]) {
+    matches.forEach((match) => {
+      match.forEach((jewelCellPosition) => {
+        const jewel = this.getJewelAtPosition(jewelCellPosition);
+        jewel.isPartOfMatch = true;
+      });
+    });
+  }
+
   drawSelf(context: CanvasRenderingContext2D) {
     const { width, height } = this.pixelDimensions;
     context.clearRect(0, 0, width, height);
