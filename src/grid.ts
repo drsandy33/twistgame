@@ -1,5 +1,9 @@
 import { SetStateAction } from "react";
-import { GRID_CELL_DIMENSIONS, GRID_PIXEL_DIMENSIONS } from "./app-consts";
+import {
+  GRID_CELL_DIMENSIONS,
+  GRID_PIXEL_DIMENSIONS,
+  JEWEL_DIAMETER,
+} from "./app-consts";
 
 import { Jewel } from "./jewel";
 import { Point } from "./jewel-quartet";
@@ -14,6 +18,7 @@ export class Grid {
   rows: Jewel[][];
   pixelDimensions: Dimensions;
   cellDimensions: Dimensions;
+  explosionPositions: Point[] = [];
   numJewelsSetter: React.Dispatch<SetStateAction<number>> | null = null;
   currentlyProcessingGameEventTypeSetter: React.Dispatch<
     SetStateAction<GameEventType | null>
@@ -119,6 +124,15 @@ export class Grid {
         jewel.drawSelf(context);
       }
     }
+    this.explosionPositions.forEach((position) => {
+      const { x, y } = getJewelPixelPosition(position.y, position.x);
+      context.beginPath();
+
+      context.arc(x, y, JEWEL_DIAMETER / 3, 0, 2 * Math.PI);
+      context.strokeStyle = "orange";
+      context.lineWidth = 5;
+      context.stroke();
+    });
   }
   selectJewelAtPosition(position: Point) {
     const jewel = this.getJewelAtPosition(position);
@@ -148,5 +162,5 @@ export function getJewelPixelPosition(row: number, column: number) {
     GRID_PIXEL_DIMENSIONS.WIDTH / GRID_CELL_DIMENSIONS.COLUMNS;
   const x = columnWidth * column + columnWidth / 2;
   const y = rowHeight * row + rowHeight / 2;
-  return { x, y };
+  return new Point(x, y);
 }

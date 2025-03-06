@@ -80,13 +80,13 @@ export class Jewel {
       }
       context.globalAlpha = 1;
     }
-    if (this.isPartOfMatch) {
-      context.beginPath();
-      context.arc(x, y, JEWEL_DIAMETER / 3, 0, 2 * Math.PI);
-      context.strokeStyle = "cyan";
-      context.lineWidth = 5;
-      context.stroke();
-    }
+    // if (this.isPartOfMatch) {
+    //   context.beginPath();
+    //   context.arc(x, y, JEWEL_DIAMETER / 3, 0, 2 * Math.PI);
+    //   context.strokeStyle = "cyan";
+    //   context.lineWidth = 5;
+    //   context.stroke();
+    // }
 
     if (this.isSelected === false) return;
     context.beginPath();

@@ -13,7 +13,7 @@ export enum JewelColor {
   White,
   // Rock,
   Purple,
-  // Green,
+  Green,
   // Yellow,
   // Orange,
 }
@@ -33,7 +33,7 @@ export const JEWEL_COLOR_URLS: Record<JewelColor, string> = {
   [JewelColor.White]: "/animals/white.svg",
   // [JewelColor.Rock]: "/animals/rock.svg",
   [JewelColor.Purple]: "/animals/purple.svg",
-  // [JewelColor.Green]: "/animals/green.svg",
+  [JewelColor.Green]: "/animals/green.svg",
   // [JewelColor.Yellow]: "/animals/yellow.svg",
   // [JewelColor.Orange]: "/animals/orange.svg",
 };

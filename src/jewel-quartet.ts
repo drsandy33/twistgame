@@ -5,6 +5,9 @@ export class Point {
     public x: number,
     public y: number
   ) {}
+  isEqual(other: Point) {
+    return other.x === this.x && other.y === this.y;
+  }
 }
 export class JewelQuartet {
   public topLeftPosition: Point;
