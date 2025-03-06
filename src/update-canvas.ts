@@ -1,13 +1,8 @@
-import { grid, gridRefiller, gridUpdater } from "./App";
-import { evaluateAndUpdateGrid } from "./evaluate-and-update-grid";
+import { grid, gridRefiller } from "./App";
 import { Jewel } from "./jewel";
 
 export function updateCanvas(context: CanvasRenderingContext2D) {
   const jewelsToUpdate: Jewel[] = [];
-  if (gridUpdater.shouldUpdateOnNextFrame) {
-    evaluateAndUpdateGrid();
-    gridUpdater.shouldUpdateOnNextFrame = false;
-  }
 
   jewelsToUpdate.push(...grid.getAllJewels());
   gridRefiller.replacements?.forEach((column) => {

@@ -1,6 +1,8 @@
-import { animationRegistry, grid, inputManager } from "./App";
+import { gameEventManager, grid } from "./App";
 import "./App.css";
 import { JEWEL_DIAMETER, SELECT_GRID_SIZE } from "./app-consts";
+import { JewelRemovalsGameEvent } from "./game-event-manager/jewel-removals";
+import { QuartetRotationGameEvent } from "./game-event-manager/jewel-rotation";
 import { JewelQuartet, Point } from "./jewel-quartet";
 
 interface SelectBoxProps {
@@ -11,14 +13,17 @@ export function SelectBox(selectBoxProps: SelectBoxProps) {
   const quartet = new JewelQuartet(
     new Point(selectBoxProps.x, selectBoxProps.y)
   );
+
   function handleMouseLeave() {
     grid.deselectAllJewels();
   }
+
   function handleMouseDown() {
-    if (inputManager.isLocked) return;
-    if (quartet.isRotating(grid)) return;
-    quartet.rotate(grid);
+    if (gameEventManager.isProcessing())
+      return console.log("click not allowed while processing");
+    gameEventManager.addEvent(new QuartetRotationGameEvent(quartet));
   }
+
   return (
     <button
       className="select-box"
