@@ -10,6 +10,7 @@ import { Point } from "./jewel-quartet";
 import { JewelColor, JewelType } from "./jewel/jewel-consts";
 import { iterateNumericEnum, chooseRandomFromArray } from "./utils";
 import { GameEventType } from "./game-event-manager";
+import { Match } from "./match-checker";
 export interface Dimensions {
   width: number;
   height: number;
@@ -102,9 +103,9 @@ export class Grid {
     }
   }
 
-  markMatchedJewels(matches: Point[][]) {
+  markMatchedJewels(matches: Match[]) {
     matches.forEach((match) => {
-      match.forEach((jewelCellPosition) => {
+      match.jewelPositions.forEach((jewelCellPosition) => {
         const jewel = this.getJewelAtPosition(jewelCellPosition);
         jewel.isPartOfMatch = true;
       });

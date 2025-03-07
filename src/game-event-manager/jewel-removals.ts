@@ -7,6 +7,8 @@ import { FadeoutAnimation } from "../jewel/fadeout-animation";
 import { JewelType } from "../jewel/jewel-consts";
 import { TranslationAnimation } from "../jewel/translation-animation";
 import { ColumnRefillsGameEvent } from "./column-refills";
+import { Match } from "../match-checker";
+import { MINIMUM_MATCH_LENGTH } from "../app-consts";
 
 export class JewelRemovalsGameEvent extends GameEvent {
   animationRegistry = new AnimationRegistry();
@@ -22,7 +24,7 @@ export class JewelRemovalsGameEvent extends GameEvent {
     if (matches.length === 0) this.isComplete = true;
     grid.explosionPositions.length = 0;
     matches.forEach((match) => {
-      match.forEach((jewelPosition) => {
+      match.jewelPositions.forEach((jewelPosition) => {
         const jewel = grid.getJewelAtPosition(jewelPosition);
         if (jewel.jewelType === JewelType.Fire) {
           const explosionPositions = getExplosionPositions(jewelPosition);
@@ -33,8 +35,8 @@ export class JewelRemovalsGameEvent extends GameEvent {
     });
 
     matches.forEach((match) => {
-      if (match.length === 3 || match.length > 4) {
-        match.forEach((jewelPosition) => {
+      if (match.jewelPositions.length === MINIMUM_MATCH_LENGTH) {
+        match.jewelPositions.forEach((jewelPosition) => {
           const jewel = grid.getJewelAtPosition(jewelPosition);
           this.animationRegistry.register(jewelPosition);
           jewel.fadeoutAnimation = new FadeoutAnimation(jewel, () => {
@@ -44,14 +46,14 @@ export class JewelRemovalsGameEvent extends GameEvent {
           jewel.shouldBeReplaced = true;
           this.numJewelsMarkedForRemoval += 1;
         });
-      } else if (match.length === 4) {
+      } else if (match.longestAxisLength < 5) {
         const newFireJewelPosition = getFireJewelPosition(match);
         if (newFireJewelPosition === null)
           throw new Error("failed to find fire jewel position");
         const newFireJewel = grid.getJewelAtPosition(newFireJewelPosition);
         newFireJewel.jewelType = JewelType.Fire;
 
-        match.forEach((jewelPosition) => {
+        match.jewelPositions.forEach((jewelPosition) => {
           const currentJewel = grid.getJewelAtPosition(jewelPosition);
           if (newFireJewelPosition.isEqual(jewelPosition))
             return console.log("fire jewel skipped"); // skip the fire jewel
@@ -68,6 +70,7 @@ export class JewelRemovalsGameEvent extends GameEvent {
               currentJewel.shouldBeReplaced = true;
               this.numJewelsMarkedForRemoval += 1;
 
+              currentJewel.opacity = 0;
               if (this.animationRegistry.isEmpty()) this.isComplete = true;
             }
           );
@@ -84,16 +87,18 @@ export class JewelRemovalsGameEvent extends GameEvent {
   }
 }
 
-function getFireJewelPosition(match: Point[]): null | Point {
+function getFireJewelPosition(match: Match): null | Point {
+  if (match.predeterminedSpecialJewelPositionOption)
+    return match.predeterminedSpecialJewelPositionOption;
   let fireJewelPosition: Point | null = null;
-  match.forEach((jewelPosition, i) => {
+  match.jewelPositions.forEach((jewelPosition, i) => {
     if (fireJewelPosition !== null) return;
     if (i === 0) return;
     const jewel = grid.getJewelAtPosition(jewelPosition);
     if ((i === 1 || i === 2) && jewel.justMoved)
       fireJewelPosition = jewelPosition;
     else {
-      const rightMostMiddleJewelPosition = match[2];
+      const rightMostMiddleJewelPosition = match.jewelPositions[2];
       if (rightMostMiddleJewelPosition === undefined)
         throw new Error("expected jewel position not found");
       fireJewelPosition = rightMostMiddleJewelPosition;
@@ -103,6 +108,7 @@ function getFireJewelPosition(match: Point[]): null | Point {
     throw new Error("failed to find fire jewel position");
   return fireJewelPosition;
 }
+
 function getExplosionPositions(center: Point) {
   const positions: Point[] = [];
 
