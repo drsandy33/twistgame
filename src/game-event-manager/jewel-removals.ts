@@ -8,7 +8,7 @@ import { JewelType } from "../jewel/jewel-consts";
 import { TranslationAnimation } from "../jewel/translation-animation";
 import { ColumnRefillsGameEvent } from "./column-refills";
 import { Match } from "../match-checker";
-import { MINIMUM_MATCH_LENGTH } from "../app-consts";
+import { GRID_CELL_DIMENSIONS, MINIMUM_MATCH_LENGTH } from "../app-consts";
 
 export class JewelRemovalsGameEvent extends GameEvent {
   animationRegistry = new AnimationRegistry();
@@ -25,12 +25,7 @@ export class JewelRemovalsGameEvent extends GameEvent {
     grid.explosionPositions.length = 0;
     matches.forEach((match) => {
       match.jewelPositions.forEach((jewelPosition) => {
-        const jewel = grid.getJewelAtPosition(jewelPosition);
-        if (jewel.jewelType === JewelType.Fire) {
-          const explosionPositions = getExplosionPositions(jewelPosition);
-          grid.explosionPositions.push(...explosionPositions);
-          console.log(explosionPositions);
-        }
+        this.handleFireJewelRemoval(jewelPosition);
       });
     });
 
@@ -52,6 +47,11 @@ export class JewelRemovalsGameEvent extends GameEvent {
           throw new Error("failed to find fire jewel position");
         const newFireJewel = grid.getJewelAtPosition(newFireJewelPosition);
         newFireJewel.jewelType = JewelType.Fire;
+        if (newFireJewel.shouldBeReplaced) {
+          newFireJewel.shouldBeReplaced = false;
+          newFireJewel.opacity = 1;
+          this.numJewelsMarkedForRemoval -= 1;
+        }
 
         match.jewelPositions.forEach((jewelPosition) => {
           const currentJewel = grid.getJewelAtPosition(jewelPosition);
@@ -79,6 +79,30 @@ export class JewelRemovalsGameEvent extends GameEvent {
         // handle lightning
       }
     });
+  }
+
+  handleFireJewelRemoval(jewelPosition: Point) {
+    const jewel = grid.getJewelAtPosition(jewelPosition);
+    if (jewel.jewelType === JewelType.Fire) {
+      const explosionPositions = getExplosionPositions(jewelPosition);
+      grid.explosionPositions.push(...explosionPositions);
+      explosionPositions.forEach((affectedPosition) => {
+        if (
+          affectedPosition.x < 0 ||
+          affectedPosition.x > GRID_CELL_DIMENSIONS.COLUMNS - 1 ||
+          affectedPosition.y < 0 ||
+          affectedPosition.y > GRID_CELL_DIMENSIONS.ROWS - 1
+        )
+          return;
+        const affectedJewel = grid.getJewelAtPosition(affectedPosition);
+        if (affectedJewel.shouldBeReplaced) return;
+        affectedJewel.shouldBeReplaced = true;
+        this.numJewelsMarkedForRemoval += 1;
+        affectedJewel.opacity = 0;
+        if (affectedJewel.jewelType === JewelType.Fire)
+          this.handleFireJewelRemoval(affectedPosition);
+      });
+    }
   }
 
   onComplete(): void {
