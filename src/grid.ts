@@ -4,12 +4,17 @@ import {
   GRID_PIXEL_DIMENSIONS,
   JEWEL_DIAMETER,
   JEWEL_TYPE_CHANCES_BY_LEVEL,
+  MAXIMUM_DOWN_COUNT_START,
 } from "./app-consts";
 
 import { Jewel } from "./jewel";
 import { Point } from "./jewel-quartet";
 import { JewelColor, JewelType } from "./jewel/jewel-consts";
-import { iterateNumericEnum, chooseRandomFromArray } from "./utils";
+import {
+  iterateNumericEnum,
+  chooseRandomFromArray,
+  iterateNumericEnumKeyedRecord,
+} from "./utils";
 import { GameEventType } from "./game-event-manager";
 import { Match } from "./match-checker";
 export interface Dimensions {
@@ -176,20 +181,50 @@ export class Grid {
     const row = this.getRow(position.y);
     row[position.x] = jewel;
   }
+  updateCountingJewels() {
+    this.getAllJewels().forEach((jewel) => {
+      if (
+        jewel.jewelType !== JewelType.Counting &&
+        jewel.jewelType !== JewelType.Markedlocked
+      )
+        return;
+      jewel.count -= 1;
+    });
+  }
 }
 export function createJewel(level: number, pixelPosition: Point) {
   const random = Math.random();
-  const chanceOfRock = JEWEL_TYPE_CHANCES_BY_LEVEL[JewelType.Rock] * level;
-  const isRock = random < chanceOfRock;
-  if (isRock)
-    return new Jewel(JewelColor.Rock, JewelType.Rock, 0, pixelPosition);
-  else {
-    const allColors = iterateNumericEnum(JewelColor).filter(
-      (jewelColor) => jewelColor !== JewelColor.Rock
-    );
-    const randColor = chooseRandomFromArray(allColors);
-    return new Jewel(randColor, JewelType.Normal, 0, pixelPosition);
+  let min = 0;
+  let selectedJewelType = JewelType.Normal;
+  let selectedCount = 0;
+  const allColors = iterateNumericEnum(JewelColor).filter(
+    (jewelColor) => jewelColor !== JewelColor.Rock
+  );
+  let selectedColor: JewelColor = chooseRandomFromArray(allColors);
+  for (const [jewelType, chance] of iterateNumericEnumKeyedRecord(
+    JEWEL_TYPE_CHANCES_BY_LEVEL
+  )) {
+    const chanceOnThisLevel = chance * level;
+    if (random > min && random <= min + chanceOnThisLevel) {
+      selectedJewelType = jewelType;
+      if (jewelType === JewelType.Rock) selectedColor = JewelColor.Rock;
+      if (jewelType === JewelType.Counting) {
+        const baseStartCount = MAXIMUM_DOWN_COUNT_START - level;
+        const countRangeSize = 1;
+        let randomSign = 1;
+        if (Math.random() > 0.5) randomSign = -1;
+        selectedCount = baseStartCount + countRangeSize * randomSign;
+      }
+    }
+    min += chanceOnThisLevel;
   }
+
+  return new Jewel(
+    selectedColor,
+    selectedJewelType,
+    selectedCount,
+    pixelPosition
+  );
 }
 export function getJewelPixelPosition(row: number, column: number) {
   const rowHeight = GRID_PIXEL_DIMENSIONS.HEIGHT / GRID_CELL_DIMENSIONS.ROWS;

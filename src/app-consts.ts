@@ -1,5 +1,5 @@
 import { JewelType } from "./jewel/jewel-consts";
-
+export const MAXIMUM_DOWN_COUNT_START = 20;
 export const GRID_PIXEL_DIMENSIONS = { WIDTH: 500, HEIGHT: 500 };
 export const GRID_CELL_DIMENSIONS = { ROWS: 8, COLUMNS: 8 };
 export const SELECT_GRID_SIZE = {
@@ -18,7 +18,7 @@ export const JEWEL_TYPE_CHANCES_BY_LEVEL: Record<JewelType, number> = {
   [JewelType.Normal]: 0,
   [JewelType.Fire]: 0,
   [JewelType.Lightening]: 0,
-  [JewelType.Counting]: 0,
+  [JewelType.Counting]: 0.5,
   [JewelType.Rock]: 0.05,
   [JewelType.Locked]: 0,
   [JewelType.Markedlocked]: 0,

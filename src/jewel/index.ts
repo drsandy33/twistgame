@@ -80,14 +80,21 @@ export class Jewel {
       }
       context.globalAlpha = 1;
     }
-    // if (this.isPartOfMatch) {
-    //   context.beginPath();
-    //   context.arc(x, y, JEWEL_DIAMETER / 3, 0, 2 * Math.PI);
-    //   context.strokeStyle = "cyan";
-    //   context.lineWidth = 5;
-    //   context.stroke();
-    // }
-
+    if (this.jewelType === JewelType.Counting) {
+      context.beginPath();
+      context.arc(x, y, JEWEL_DIAMETER / 4, 0, Math.PI * 2);
+      context.fillStyle = `rgba(0,0,0,${this.opacity})`;
+      context.fill();
+      context.fillStyle = `rgba(255,255,255,${this.opacity})`;
+      context.textAlign = "center";
+      context.textBaseline = "middle";
+      context.font = "20px sans";
+      context.fillText(
+        this.count.toString(),
+        this.pixelPosition.x,
+        this.pixelPosition.y
+      );
+    }
     if (this.isSelected === false) return;
     context.beginPath();
     context.arc(x, y, JEWEL_DIAMETER / 2, 0, 2 * Math.PI);
