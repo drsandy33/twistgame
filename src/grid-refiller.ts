@@ -18,7 +18,7 @@ export class GridRefiller {
     const replacementColumn: Jewel[] = [];
     for (let i = 0; i < size; i = i + 1) {
       const pixelPosition = getJewelPixelPosition(size * -1 + i, columnIndex);
-      const jewel = createJewel(0, pixelPosition);
+      const jewel = createJewel(this.grid.getCurrentLevel(), pixelPosition);
       replacementColumn.push(jewel);
     }
     return replacementColumn;

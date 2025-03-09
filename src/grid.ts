@@ -3,6 +3,7 @@ import {
   GRID_CELL_DIMENSIONS,
   GRID_PIXEL_DIMENSIONS,
   JEWEL_DIAMETER,
+  JEWEL_TYPE_CHANCES_BY_LEVEL,
 } from "./app-consts";
 
 import { Jewel } from "./jewel";
@@ -21,6 +22,8 @@ export class Grid {
   cellDimensions: Dimensions;
   explosionPositions: Point[] = [];
   numJewelsSetter: React.Dispatch<SetStateAction<number>> | null = null;
+  numJewelsRemovedSetter: React.Dispatch<SetStateAction<number>> | null = null;
+  numJewelsRemoved: number = 0;
   currentlyProcessingGameEventTypeSetter: React.Dispatch<
     SetStateAction<GameEventType | null>
   > | null = null;
@@ -39,6 +42,29 @@ export class Grid {
       height: GRID_PIXEL_DIMENSIONS.HEIGHT,
     };
   }
+  updateScore(update: number) {
+    this.numJewelsRemoved += update;
+    if (this.numJewelsRemovedSetter !== null)
+      this.numJewelsRemovedSetter(this.numJewelsRemoved);
+  }
+  getCurrentLevel() {
+    // Define the base points required for the first level
+    const basePoints = 10;
+    // Define the growth factor for the geometric progression
+    const growthFactor = 2;
+
+    // Calculate the level based on the points
+    let level = 0;
+    let requiredPoints = basePoints;
+
+    while (this.numJewelsRemoved >= requiredPoints) {
+      level++;
+      requiredPoints *= growthFactor; // Increase the required points geometrically
+    }
+
+    return level;
+  }
+
   makeGrid(numRows: number, numColumns: number) {
     const rows: Jewel[][] = [];
     for (let i = 0; i < numRows; i = i + 1) {
@@ -151,11 +177,19 @@ export class Grid {
     row[position.x] = jewel;
   }
 }
-export function createJewel(_level: number, pixelPosition: Point) {
-  const allColors = iterateNumericEnum(JewelColor);
-  const randColor = chooseRandomFromArray(allColors);
-
-  return new Jewel(randColor, JewelType.Normal, 0, pixelPosition);
+export function createJewel(level: number, pixelPosition: Point) {
+  const random = Math.random();
+  const chanceOfRock = JEWEL_TYPE_CHANCES_BY_LEVEL[JewelType.Rock] * level;
+  const isRock = random < chanceOfRock;
+  if (isRock)
+    return new Jewel(JewelColor.Rock, JewelType.Rock, 0, pixelPosition);
+  else {
+    const allColors = iterateNumericEnum(JewelColor).filter(
+      (jewelColor) => jewelColor !== JewelColor.Rock
+    );
+    const randColor = chooseRandomFromArray(allColors);
+    return new Jewel(randColor, JewelType.Normal, 0, pixelPosition);
+  }
 }
 export function getJewelPixelPosition(row: number, column: number) {
   const rowHeight = GRID_PIXEL_DIMENSIONS.HEIGHT / GRID_CELL_DIMENSIONS.ROWS;

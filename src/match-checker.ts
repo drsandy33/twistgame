@@ -3,7 +3,7 @@ import { MINIMUM_MATCH_LENGTH } from "./app-consts";
 import { Grid } from "./grid";
 import { Jewel } from "./jewel";
 import { Point } from "./jewel-quartet";
-import { JewelColor } from "./jewel/jewel-consts";
+import { JewelColor, JewelType } from "./jewel/jewel-consts";
 
 enum Axis {
   Row,
@@ -73,7 +73,10 @@ export class MatchChecker {
         const y = axisType === Axis.Row ? listIndex : jewelIndex;
         const position = new Point(x, y);
 
-        if (currentMatchCandidate.jewelColor === null) {
+        if (
+          currentMatchCandidate.jewelColor === null &&
+          jewel.jewelType !== JewelType.Rock
+        ) {
           currentMatchCandidate.jewelColor = jewel.jewelColor;
         }
         if (
@@ -93,10 +96,12 @@ export class MatchChecker {
           if (currentMatchCandidate.isMatch()) {
             matches.push(new Match(currentMatchCandidate.jewelPositions));
           }
-          currentMatchCandidate = new MatchCandidate(
-            position,
-            jewel.jewelColor
-          );
+          if (jewel.jewelType !== JewelType.Rock)
+            currentMatchCandidate = new MatchCandidate(
+              position,
+              jewel.jewelColor
+            );
+          else currentMatchCandidate = new MatchCandidate();
         }
       });
     });

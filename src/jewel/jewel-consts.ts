@@ -11,11 +11,11 @@ export enum JewelColor {
   Red,
   Blue,
   White,
-  // Rock,
+  Rock,
   Purple,
   Green,
-  // Yellow,
-  // Orange,
+  Yellow,
+  Orange,
 }
 // const JEWEL_COLOR_STRINGS: Record<JewelColor, string> = {
 //   [JewelColor.Red]: "#BE252A",
@@ -31,11 +31,11 @@ export const JEWEL_COLOR_URLS: Record<JewelColor, string> = {
   [JewelColor.Red]: "/animals/red.svg",
   [JewelColor.Blue]: "/animals/blue.svg",
   [JewelColor.White]: "/animals/white.svg",
-  // [JewelColor.Rock]: "/animals/rock.svg",
+  [JewelColor.Rock]: "/animals/rock.svg",
   [JewelColor.Purple]: "/animals/purple.svg",
   [JewelColor.Green]: "/animals/green.svg",
-  // [JewelColor.Yellow]: "/animals/yellow.svg",
-  // [JewelColor.Orange]: "/animals/orange.svg",
+  [JewelColor.Yellow]: "/animals/yellow.svg",
+  [JewelColor.Orange]: "/animals/orange.svg",
 };
 export const JEWEL_TYPE_INDICATOR_URLS: Partial<Record<JewelType, string>> = {
   [JewelType.Fire]: "/jewel-type-indicator/fire.svg",

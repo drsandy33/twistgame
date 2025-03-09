@@ -27,6 +27,7 @@ export const imageManager = new ImageManager();
 function App() {
   const [loading, setLoading] = useState(true);
   const [numJewels, setNumJewels] = useState(0);
+  const [numJewelsRemoved, setNumJewelsRemoved] = useState(0);
   const [currentlyProcessingEventType, setCurrentlyProcessingEventType] =
     useState<null | GameEventType>(null);
   const animationFrameRef = useRef<number>(null);
@@ -64,6 +65,7 @@ function App() {
     grid.markMatchedJewels(matches);
 
     grid.numJewelsSetter = setNumJewels;
+    grid.numJewelsRemovedSetter = setNumJewelsRemoved;
     grid.currentlyProcessingGameEventTypeSetter =
       setCurrentlyProcessingEventType;
 
@@ -95,6 +97,8 @@ function App() {
           ? GAME_EVENT_TYPE_STRINGS[currentlyProcessingEventType]
           : "null"}
       </div>
+      <div style={{ padding: "2px" }}>score: {numJewelsRemoved}</div>
+      <div style={{ padding: "2px" }}>level: {grid.getCurrentLevel()}</div>
     </div>
   );
 }

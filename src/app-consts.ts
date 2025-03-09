@@ -1,3 +1,5 @@
+import { JewelType } from "./jewel/jewel-consts";
+
 export const GRID_PIXEL_DIMENSIONS = { WIDTH: 500, HEIGHT: 500 };
 export const GRID_CELL_DIMENSIONS = { ROWS: 8, COLUMNS: 8 };
 export const SELECT_GRID_SIZE = {
@@ -12,3 +14,12 @@ export const ROTATION_ANIMATION_DURATION = 150;
 export const FADEOUT_ANIMATION_DURATION = 250;
 export const FALLING_ANIMATION_DURATION = 700;
 export const MINIMUM_MATCH_LENGTH = 3;
+export const JEWEL_TYPE_CHANCES_BY_LEVEL: Record<JewelType, number> = {
+  [JewelType.Normal]: 0,
+  [JewelType.Fire]: 0,
+  [JewelType.Lightening]: 0,
+  [JewelType.Counting]: 0,
+  [JewelType.Rock]: 0.05,
+  [JewelType.Locked]: 0,
+  [JewelType.Markedlocked]: 0,
+};

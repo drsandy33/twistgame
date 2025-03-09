@@ -18,6 +18,7 @@ export class JewelRemovalsGameEvent extends GameEvent {
   }
 
   start(): void {
+    this.isComplete = true;
     const matches = matchChecker.checkForMatches();
     grid.markMatchedJewels(matches);
 
@@ -34,6 +35,7 @@ export class JewelRemovalsGameEvent extends GameEvent {
         match.jewelPositions.forEach((jewelPosition) => {
           const jewel = grid.getJewelAtPosition(jewelPosition);
           this.animationRegistry.register(jewelPosition);
+          this.isComplete = false;
           jewel.fadeoutAnimation = new FadeoutAnimation(jewel, () => {
             this.animationRegistry.unregister(jewelPosition);
             if (this.animationRegistry.isEmpty()) this.isComplete = true;
@@ -59,6 +61,7 @@ export class JewelRemovalsGameEvent extends GameEvent {
             return console.log("fire jewel skipped"); // skip the fire jewel
 
           this.animationRegistry.register(jewelPosition);
+          this.isComplete = false;
           currentJewel.coalescingAnimation = new TranslationAnimation(
             cloneDeep(currentJewel.pixelPosition),
             cloneDeep(newFireJewel.pixelPosition),
@@ -106,6 +109,7 @@ export class JewelRemovalsGameEvent extends GameEvent {
   }
 
   onComplete(): void {
+    grid.updateScore(this.numJewelsMarkedForRemoval);
     if (this.numJewelsMarkedForRemoval > 0)
       gameEventManager.addEvent(new ColumnRefillsGameEvent());
   }

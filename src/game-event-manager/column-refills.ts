@@ -17,7 +17,8 @@ export class ColumnRefillsGameEvent extends GameEvent {
     const replacements = gridRefiller.createReplacements();
 
     grid.getColumns().forEach((column, i) => {
-      if (!replacements) return;
+      if (replacements.length === 0)
+        throw new Error("expected replacements not found");
       const replacementColumn = replacements[i];
       if (replacementColumn === undefined)
         throw new Error("replacement column not found");
