@@ -17,9 +17,9 @@ export const MINIMUM_MATCH_LENGTH = 3;
 export const JEWEL_TYPE_CHANCES_BY_LEVEL: Record<JewelType, number> = {
   [JewelType.Normal]: 0,
   [JewelType.Fire]: 0,
-  [JewelType.Lightening]: 0,
-  [JewelType.Counting]: 0.5,
-  [JewelType.Rock]: 0.05,
+  [JewelType.Lightning]: 0,
+  [JewelType.Counting]: 0.01,
+  [JewelType.Rock]: 0.015,
   [JewelType.Locked]: 0,
-  [JewelType.Markedlocked]: 0,
+  [JewelType.MarkedLocked]: 0.25,
 };

@@ -19,6 +19,8 @@ export class Jewel {
   isSelected: boolean = false;
   isPartOfMatch: boolean = false;
   shouldBeReplaced: boolean = false;
+  isExploding: boolean = false;
+  isBeingZapped: boolean = false;
   justMoved: boolean = false;
   rotationAnimation: null | RotationAnimation = null;
   fadeoutAnimation: null | FadeoutAnimation = null;
@@ -56,13 +58,18 @@ export class Jewel {
         desiredWidth,
         desiredHeight
       );
-      if (this.jewelType === JewelType.Fire) {
+      if (
+        this.jewelType === JewelType.Fire ||
+        this.jewelType === JewelType.MarkedLocked ||
+        this.jewelType === JewelType.Locked ||
+        this.jewelType === JewelType.Lightning
+      ) {
         const imagePath = JEWEL_TYPE_INDICATOR_URLS[this.jewelType];
         if (imagePath === undefined)
           throw new Error("fire indicator image path not found");
         const image = imageManager.cachedImages[imagePath];
         if (!(image instanceof Image))
-          throw new Error("fire indicator image not found");
+          throw new Error("special jewel indicator image not found");
         const aspectRatio = image.width / image.height;
         const desiredHeight = JEWEL_DIAMETER / 2;
         const desiredWidth = desiredHeight * aspectRatio;
@@ -80,6 +87,7 @@ export class Jewel {
       }
       context.globalAlpha = 1;
     }
+
     if (this.jewelType === JewelType.Counting) {
       context.beginPath();
       context.arc(x, y, JEWEL_DIAMETER / 4, 0, Math.PI * 2);
@@ -95,6 +103,21 @@ export class Jewel {
         this.pixelPosition.y
       );
     }
+    if (this.isExploding) {
+      context.beginPath();
+      context.arc(x, y, JEWEL_DIAMETER / 3, 0, 2 * Math.PI);
+      context.strokeStyle = "orange";
+      context.lineWidth = 5;
+      context.stroke();
+    }
+    if (this.isBeingZapped) {
+      context.beginPath();
+      context.arc(x, y, JEWEL_DIAMETER / 3, 0, 2 * Math.PI);
+      context.strokeStyle = "dodgerblue";
+      context.lineWidth = 5;
+      context.stroke();
+    }
+
     if (this.isSelected === false) return;
     context.beginPath();
     context.arc(x, y, JEWEL_DIAMETER / 2, 0, 2 * Math.PI);

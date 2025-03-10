@@ -1,11 +1,11 @@
 export enum JewelType {
   Normal,
   Fire,
-  Lightening,
+  Lightning,
   Counting,
   Rock,
   Locked,
-  Markedlocked,
+  MarkedLocked,
 }
 export enum JewelColor {
   Red,
@@ -39,4 +39,7 @@ export const JEWEL_COLOR_URLS: Record<JewelColor, string> = {
 };
 export const JEWEL_TYPE_INDICATOR_URLS: Partial<Record<JewelType, string>> = {
   [JewelType.Fire]: "/jewel-type-indicator/fire.svg",
+  [JewelType.Lightning]: "/jewel-type-indicator/lightning.svg",
+  [JewelType.MarkedLocked]: "/jewel-type-indicator/openlock.svg",
+  [JewelType.Locked]: "/jewel-type-indicator/closedlock.svg",
 };

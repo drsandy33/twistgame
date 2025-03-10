@@ -25,7 +25,7 @@ export class Grid {
   rows: Jewel[][];
   pixelDimensions: Dimensions;
   cellDimensions: Dimensions;
-  explosionPositions: Point[] = [];
+
   numJewelsSetter: React.Dispatch<SetStateAction<number>> | null = null;
   numJewelsRemovedSetter: React.Dispatch<SetStateAction<number>> | null = null;
   numJewelsRemoved: number = 0;
@@ -156,15 +156,6 @@ export class Grid {
         jewel.drawSelf(context);
       }
     }
-    this.explosionPositions.forEach((position) => {
-      const { x, y } = getJewelPixelPosition(position.y, position.x);
-      context.beginPath();
-
-      context.arc(x, y, JEWEL_DIAMETER / 3, 0, 2 * Math.PI);
-      context.strokeStyle = "orange";
-      context.lineWidth = 5;
-      context.stroke();
-    });
   }
   selectJewelAtPosition(position: Point) {
     const jewel = this.getJewelAtPosition(position);
@@ -185,7 +176,7 @@ export class Grid {
     this.getAllJewels().forEach((jewel) => {
       if (
         jewel.jewelType !== JewelType.Counting &&
-        jewel.jewelType !== JewelType.Markedlocked
+        jewel.jewelType !== JewelType.MarkedLocked
       )
         return;
       jewel.count -= 1;
