@@ -8,6 +8,7 @@ import { JewelRemovalsGameEvent } from "./jewel-removals";
 import { getJewelPixelPosition } from "../grid";
 import { JEWEL_TYPE_CHANCES_BY_LEVEL } from "../app-consts";
 import { JewelType } from "../jewel/jewel-consts";
+import { Jewel } from "../jewel";
 
 export class ColumnRefillsGameEvent extends GameEvent {
   animationRegistry = new AnimationRegistry();
@@ -78,8 +79,6 @@ export class ColumnRefillsGameEvent extends GameEvent {
         unassignedEmptyPositions.push(currentJewelPositions);
       }
     });
-
-    assignMarkedBeforeLockJewels();
   }
 
   onComplete(): void {
@@ -87,24 +86,4 @@ export class ColumnRefillsGameEvent extends GameEvent {
     if (matches.length > 0)
       gameEventManager.addEvent(new JewelRemovalsGameEvent());
   }
-}
-
-function assignMarkedBeforeLockJewels() {
-  const random = Math.random();
-  const chanceToAssignLock =
-    JEWEL_TYPE_CHANCES_BY_LEVEL[JewelType.MarkedLocked] *
-    grid.getCurrentLevel();
-  const shouldAssignLock = random < chanceToAssignLock;
-  if (!shouldAssignLock) {
-    return;
-  }
-  const allValidJewels = grid
-    .getAllJewels()
-    .filter((jewel) => jewel.jewelType === JewelType.Normal);
-  if (allValidJewels.length === 0)
-    return console.log("no valid jewels found to assign as locked");
-  const randomIndex = Math.floor(Math.random() * allValidJewels.length - 1);
-  const jewelToAssign = allValidJewels[randomIndex];
-  if (jewelToAssign === undefined) throw new Error("expected jewel not found");
-  jewelToAssign.jewelType = JewelType.MarkedLocked;
 }

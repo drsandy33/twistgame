@@ -1,12 +1,10 @@
 import { SetStateAction } from "react";
 import {
+  COUNTING_JEWEL_BASE_START_COUNT,
   GRID_CELL_DIMENSIONS,
   GRID_PIXEL_DIMENSIONS,
-  JEWEL_DIAMETER,
   JEWEL_TYPE_CHANCES_BY_LEVEL,
-  MAXIMUM_DOWN_COUNT_START,
 } from "./app-consts";
-
 import { Jewel } from "./jewel";
 import { Point } from "./jewel-quartet";
 import { JewelColor, JewelType } from "./jewel/jewel-consts";
@@ -17,17 +15,20 @@ import {
 } from "./utils";
 import { GameEventType } from "./game-event-manager";
 import { Match } from "./match-checker";
+
 export interface Dimensions {
   width: number;
   height: number;
 }
+
 export class Grid {
   rows: Jewel[][];
   pixelDimensions: Dimensions;
   cellDimensions: Dimensions;
-
+  isGameOver: boolean = false;
   numJewelsSetter: React.Dispatch<SetStateAction<number>> | null = null;
   numJewelsRemovedSetter: React.Dispatch<SetStateAction<number>> | null = null;
+  isGameOverSetter: React.Dispatch<SetStateAction<boolean>> | null = null;
   numJewelsRemoved: number = 0;
   currentlyProcessingGameEventTypeSetter: React.Dispatch<
     SetStateAction<GameEventType | null>
@@ -174,12 +175,14 @@ export class Grid {
   }
   updateCountingJewels() {
     this.getAllJewels().forEach((jewel) => {
-      if (
-        jewel.jewelType !== JewelType.Counting &&
-        jewel.jewelType !== JewelType.MarkedLocked
-      )
-        return;
+      if (jewel.jewelType !== JewelType.Counting) return;
       jewel.count -= 1;
+      if (jewel.count === 0) {
+        if (!this.isGameOverSetter)
+          throw new Error("game over setter was not found");
+        this.isGameOverSetter(true);
+        this.isGameOver = true;
+      }
     });
   }
 }
@@ -200,11 +203,14 @@ export function createJewel(level: number, pixelPosition: Point) {
       selectedJewelType = jewelType;
       if (jewelType === JewelType.Rock) selectedColor = JewelColor.Rock;
       if (jewelType === JewelType.Counting) {
-        const baseStartCount = MAXIMUM_DOWN_COUNT_START - level;
+        const baseStartCount = COUNTING_JEWEL_BASE_START_COUNT - level;
         const countRangeSize = 1;
         let randomSign = 1;
         if (Math.random() > 0.5) randomSign = -1;
-        selectedCount = baseStartCount + countRangeSize * randomSign;
+        selectedCount = Math.max(
+          1,
+          baseStartCount + countRangeSize * randomSign
+        );
       }
     }
     min += chanceOnThisLevel;

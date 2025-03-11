@@ -148,7 +148,7 @@ export class JewelRemovalsGameEvent extends GameEvent {
 
   onComplete(): void {
     grid.updateScore(this.numJewelsMarkedForRemoval);
-    grid.updateCountingJewels();
+
     if (this.numJewelsMarkedForRemoval > 0)
       gameEventManager.addEvent(new ColumnRefillsGameEvent());
   }

@@ -21,6 +21,8 @@ export function SelectBox(selectBoxProps: SelectBoxProps) {
   function handleMouseDown() {
     if (gameEventManager.isProcessing())
       return console.log("click not allowed while processing");
+    if (grid.isGameOver) return;
+    if (!quartet.isRotatable(grid)) return;
     gameEventManager.addEvent(new QuartetRotationGameEvent(quartet));
   }
 

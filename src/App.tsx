@@ -28,6 +28,8 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [numJewels, setNumJewels] = useState(0);
   const [numJewelsRemoved, setNumJewelsRemoved] = useState(0);
+  const [isGameOver, setIsGameOver] = useState(false);
+
   const [currentlyProcessingEventType, setCurrentlyProcessingEventType] =
     useState<null | GameEventType>(null);
   const animationFrameRef = useRef<number>(null);
@@ -66,6 +68,7 @@ function App() {
 
     grid.numJewelsSetter = setNumJewels;
     grid.numJewelsRemovedSetter = setNumJewelsRemoved;
+    grid.isGameOverSetter = setIsGameOver;
     grid.currentlyProcessingGameEventTypeSetter =
       setCurrentlyProcessingEventType;
 
@@ -79,6 +82,11 @@ function App() {
   }, [loading]);
 
   if (loading) return "loading";
+
+  function handleNewGameClick() {
+    setIsGameOver(false);
+    grid.isGameOver = false;
+  }
 
   return (
     <div className="main-container">
@@ -99,6 +107,13 @@ function App() {
       </div>
       <div style={{ padding: "2px" }}>score: {numJewelsRemoved}</div>
       <div style={{ padding: "2px" }}>level: {grid.getCurrentLevel()}</div>
+      <div style={{ padding: "2px" }}>
+        isGameOver: {isGameOver ? "true" : "false"}
+      </div>
+      <dialog open={isGameOver} className="dialog">
+        <h3>GAME OVER !!!</h3>
+        <button onClick={handleNewGameClick}>Play Again</button>
+      </dialog>
     </div>
   );
 }
