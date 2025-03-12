@@ -20,7 +20,9 @@ export const JEWEL_TYPE_CHANCES_BY_LEVEL: Record<JewelType, number> = {
   [JewelType.Fire]: 0,
   [JewelType.Lightning]: 0,
   [JewelType.Counting]: 0.01,
+
   [JewelType.Rock]: 0.01,
+
   [JewelType.Locked]: 0,
   [JewelType.MarkedLocked]: 0.005,
 };

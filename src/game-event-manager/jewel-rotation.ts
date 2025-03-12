@@ -16,6 +16,10 @@ export class QuartetRotationGameEvent extends GameEvent {
   }
 
   start(): void {
+    // "justMoved" is used to determine which central jewel should become
+    // the fire jewel when a match 4 is made. We'll reset them all now
+    grid.getAllJewels().forEach((jewel) => (jewel.justMoved = false));
+
     const { quartet } = this;
     const topLeftJewel = grid.getJewelAtPosition(quartet.topLeftPosition);
     const topRightJewel = grid.getJewelAtPosition(quartet.topRightPosition);
