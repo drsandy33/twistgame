@@ -84,6 +84,11 @@ function App() {
   if (loading) return "loading";
 
   function handleNewGameClick() {
+    setNumJewelsRemoved(0);
+    grid.rows = grid.makeGrid(
+      grid.cellDimensions.height,
+      grid.cellDimensions.width
+    );
     setIsGameOver(false);
     grid.isGameOver = false;
   }
