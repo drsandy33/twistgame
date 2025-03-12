@@ -2,10 +2,9 @@ import { useState } from "react";
 import { gameEventManager, grid } from "./App";
 import "./App.css";
 import { JEWEL_DIAMETER, SELECT_GRID_SIZE } from "./app-consts";
-
 import { QuartetRotationGameEvent } from "./game-event-manager/jewel-rotation";
 import { JewelQuartet, Point } from "./jewel-quartet";
-//import {ReactComponent as SelectCircle}  from "../public/vite.svg";
+import SelectCircle from "./assets/selection-circle.svg?react";
 
 interface SelectBoxProps {
   x: number;
@@ -42,7 +41,25 @@ export function SelectBox(selectBoxProps: SelectBoxProps) {
       onMouseLeave={handleMouseLeave}
       onMouseDown={handleMouseDown}
     >
-      {isHovered && <div className="selection-circle" />}
+      {
+        // isHovered && <div className="selection-circle" />
+      }
+      {isHovered && (
+        <div>
+          <div className="selection-circle-container">
+            <SelectCircle
+              className="selection-circle-svg"
+              style={{ fill: "grey" }}
+            />
+          </div>
+          <div className="selection-circle-container">
+            <SelectCircle
+              className="selection-circle-svg"
+              style={{ zIndex: 10 }}
+            />
+          </div>
+        </div>
+      )}
     </button>
   );
 }

@@ -10,20 +10,20 @@ export function updateCanvas(context: CanvasRenderingContext2D) {
   });
 
   jewelsToUpdate.forEach((jewel) => {
+    if (jewel.fallingAnimation) {
+      const fallingAnimationIsComplete = jewel.fallingAnimation.update();
+      if (fallingAnimationIsComplete) jewel.fallingAnimation = null;
+    }
     if (jewel.rotationAnimation) {
       const rotationAnimationIsComplete = jewel.rotationAnimation.update();
       if (rotationAnimationIsComplete) jewel.rotationAnimation = null;
     }
     if (jewel.fadeoutAnimation) {
-      const fadeoutAnimationIsComplete = jewel.fadeoutAnimation?.update();
+      const fadeoutAnimationIsComplete = jewel.fadeoutAnimation.update();
       if (fadeoutAnimationIsComplete) jewel.fadeoutAnimation = null;
     }
-    if (jewel.fallingAnimation) {
-      const fallingAnimationIsComplete = jewel.fallingAnimation?.update();
-      if (fallingAnimationIsComplete) jewel.fallingAnimation = null;
-    }
     if (jewel.coalescingAnimation) {
-      const coalescingAnimationIsComplete = jewel.coalescingAnimation?.update();
+      const coalescingAnimationIsComplete = jewel.coalescingAnimation.update();
       if (coalescingAnimationIsComplete) jewel.coalescingAnimation = null;
     }
   });

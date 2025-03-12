@@ -25,7 +25,6 @@
 }
 .select-grid {
   position: absolute;
-  opacity: 50%;
 }
 .dialog {
   position: absolute;
@@ -35,15 +34,32 @@
   padding: 10px;
   border: 2px solid gray;
 }
-.selection-circle {
-  border-radius: 50%;
-  border: 8px solid;
-  border-image: conic-gradient(to right, white, black);
+
+.selection-circle-container {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translateX(-50%) translateY(-50%);
-  height: 200%;
-  width: 200%;
+  height: 275%;
+  width: 275%;
   pointer-events: none;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.selection-circle-svg {
+  height: 100%;
+  pointer-events: none;
+  animation-name: rotate;
+  animation-duration: 15s;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+  opacity: 75%;
 }

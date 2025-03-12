@@ -1,8 +1,5 @@
 import { imageManager } from "../App";
-import {
-  JEWEL_DIAMETER,
-  SPECIAL_JEWEL_PULSING_ANIMATION_DURATION,
-} from "../app-consts";
+import { JEWEL_DIAMETER } from "../app-consts";
 import { Point } from "../jewel-quartet";
 
 import { FadeoutAnimation } from "./fadeout-animation";
@@ -14,6 +11,8 @@ import {
   JEWEL_TYPE_INDICATOR_URLS,
 } from "./jewel-consts";
 import { RotationAnimation } from "./rotation-animation";
+
+let nextJewelId = 0;
 
 export class Jewel {
   jewelColor: JewelColor;
@@ -30,6 +29,7 @@ export class Jewel {
   fallingAnimation: null | TranslationAnimation = null;
   coalescingAnimation: null | TranslationAnimation = null;
   opacity: number = 1;
+  id: number = nextJewelId++;
   constructor(
     jewelColor: JewelColor,
     jewelType: JewelType,
@@ -140,5 +140,29 @@ export class Jewel {
     // context.strokeStyle = "white";
     // context.lineWidth = 5;
     // context.stroke();
+    //
+    //
+    // FOR TESTING
+    context.beginPath();
+
+    const idTagPosition = new Point(
+      x + JEWEL_DIAMETER / 4,
+      y + JEWEL_DIAMETER / 4
+    );
+    context.arc(
+      idTagPosition.x,
+      idTagPosition.y,
+      JEWEL_DIAMETER / 8,
+      0,
+      Math.PI * 2
+    );
+    context.fillStyle = `rgba(0,0,0,${this.opacity})`;
+    context.fill();
+    context.fillStyle = `rgba(255,255,255,${this.opacity})`;
+    context.textAlign = "center";
+    context.textBaseline = "middle";
+    const fontSize = 10;
+    context.font = `${fontSize}px sans`;
+    context.fillText(this.id.toString(), idTagPosition.x, idTagPosition.y);
   }
 }

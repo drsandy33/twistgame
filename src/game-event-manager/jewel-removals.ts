@@ -8,11 +8,7 @@ import { JewelType } from "../jewel/jewel-consts";
 import { TranslationAnimation } from "../jewel/translation-animation";
 import { ColumnRefillsGameEvent } from "./column-refills";
 import { Match } from "../match-checker";
-import {
-  GRID_CELL_DIMENSIONS,
-  JEWEL_TYPE_CHANCES_BY_LEVEL,
-  MINIMUM_MATCH_LENGTH,
-} from "../app-consts";
+import { GRID_CELL_DIMENSIONS, MINIMUM_MATCH_LENGTH } from "../app-consts";
 
 export class JewelRemovalsGameEvent extends GameEvent {
   animationRegistry = new AnimationRegistry();
@@ -22,7 +18,6 @@ export class JewelRemovalsGameEvent extends GameEvent {
   }
 
   start(): void {
-    this.isComplete = true;
     const matches = matchChecker.checkForMatches();
     grid.markMatchedJewelsAndStopCountingMatchedJewels(matches);
 
@@ -76,6 +71,8 @@ export class JewelRemovalsGameEvent extends GameEvent {
     const newSpecialJewelPosition = positionGetter(match);
 
     const newSpecialJewel = grid.getJewelAtPosition(newSpecialJewelPosition);
+    newSpecialJewel.isExploding = false;
+    newSpecialJewel.isBeingZapped = false;
     newSpecialJewel.jewelType = jewelType;
     if (newSpecialJewel.shouldBeReplaced) {
       newSpecialJewel.shouldBeReplaced = false;
