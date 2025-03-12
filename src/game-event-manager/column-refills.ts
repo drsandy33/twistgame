@@ -6,9 +6,6 @@ import { Point } from "../jewel-quartet";
 import { TranslationAnimation } from "../jewel/translation-animation";
 import { JewelRemovalsGameEvent } from "./jewel-removals";
 import { getJewelPixelPosition } from "../grid";
-import { JEWEL_TYPE_CHANCES_BY_LEVEL } from "../app-consts";
-import { JewelType } from "../jewel/jewel-consts";
-import { Jewel } from "../jewel";
 
 export class ColumnRefillsGameEvent extends GameEvent {
   animationRegistry = new AnimationRegistry();
@@ -23,6 +20,7 @@ export class ColumnRefillsGameEvent extends GameEvent {
       if (replacements.length === 0)
         throw new Error("expected replacements not found");
       const replacementColumn = replacements[i];
+
       if (replacementColumn === undefined)
         throw new Error("replacement column not found");
 
@@ -37,7 +35,8 @@ export class ColumnRefillsGameEvent extends GameEvent {
 
       while (combinedColumn.length > 0) {
         const currentJewel = combinedColumn.pop();
-        if (currentJewel === undefined) break;
+        if (currentJewel === undefined)
+          throw new Error("expected jewel not found");
 
         rowIndex = rowIndex - 1;
 
@@ -61,7 +60,8 @@ export class ColumnRefillsGameEvent extends GameEvent {
         if (!positionToAssign) throw new Error("position to assign not found");
 
         this.animationRegistry.register(currentJewelCellPosition);
-        currentJewel.justMoved = true;
+
+        // currentJewel.justMoved = true; checking if we really needed this
         currentJewel.fallingAnimation = new TranslationAnimation(
           cloneDeep(currentJewel.pixelPosition),
           cloneDeep(positionToAssign.pixelPosition),
@@ -72,12 +72,17 @@ export class ColumnRefillsGameEvent extends GameEvent {
               currentJewel
             );
             this.animationRegistry.unregister(currentJewelCellPosition);
-            if (this.animationRegistry.isEmpty()) this.isComplete = true;
+            if (this.animationRegistry.isEmpty()) {
+              this.isComplete = true;
+              console.log("animation registry was empty in ColumnRefill");
+            } else
+              console.log("animation registry not yet empty in ColumnRefill");
           }
         );
 
         unassignedEmptyPositions.push(currentJewelPositions);
       }
+      console.log("finished ColumnRefill while loop");
     });
   }
 
