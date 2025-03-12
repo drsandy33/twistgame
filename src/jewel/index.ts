@@ -1,5 +1,8 @@
 import { imageManager } from "../App";
-import { JEWEL_DIAMETER } from "../app-consts";
+import {
+  JEWEL_DIAMETER,
+  SPECIAL_JEWEL_PULSING_ANIMATION_DURATION,
+} from "../app-consts";
 import { Point } from "../jewel-quartet";
 
 import { FadeoutAnimation } from "./fadeout-animation";
@@ -71,7 +74,11 @@ export class Jewel {
         if (!(image instanceof Image))
           throw new Error("special jewel indicator image not found");
         const aspectRatio = image.width / image.height;
-        const desiredHeight = JEWEL_DIAMETER / 2;
+        const scalingFactor =
+          (Date.now() % SPECIAL_JEWEL_PULSING_ANIMATION_DURATION) /
+          SPECIAL_JEWEL_PULSING_ANIMATION_DURATION;
+        const scaledValue = 0.5 + scalingFactor * 0.5;
+        const desiredHeight = (JEWEL_DIAMETER / 2) * scaledValue;
         const desiredWidth = desiredHeight * aspectRatio;
         context.beginPath();
         context.arc(x, y, JEWEL_DIAMETER / 4, 0, Math.PI * 2);
