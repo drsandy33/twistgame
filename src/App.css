@@ -16,6 +16,7 @@
 .select-box {
   background-color: transparent;
   border: 0px;
+  position: relative;
 }
 .all-grids {
   position: relative;
@@ -33,4 +34,16 @@
   transform: translateX(-50%);
   padding: 10px;
   border: 2px solid gray;
+}
+.selection-circle {
+  border-radius: 50%;
+  border: 8px solid;
+  border-image: conic-gradient(to right, white, black);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  height: 200%;
+  width: 200%;
+  pointer-events: none;
 }

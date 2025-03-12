@@ -135,11 +135,13 @@ export class Grid {
     }
   }
 
-  markMatchedJewels(matches: Match[]) {
+  markMatchedJewelsAndStopCountingMatchedJewels(matches: Match[]) {
     matches.forEach((match) => {
       match.jewelPositions.forEach((jewelCellPosition) => {
         const jewel = this.getJewelAtPosition(jewelCellPosition);
         jewel.isPartOfMatch = true;
+        if (jewel.jewelType === JewelType.Counting)
+          jewel.jewelType = JewelType.Normal;
       });
     });
   }
@@ -177,7 +179,14 @@ export class Grid {
     this.getAllJewels().forEach((jewel) => {
       if (jewel.jewelType !== JewelType.Counting) return;
       jewel.count -= 1;
-      if (jewel.count === 0) {
+    });
+  }
+  checkForGameOver() {
+    console.log("checking for game over");
+    this.getAllJewels().forEach((jewel) => {
+      if (jewel.jewelType !== JewelType.Counting) return;
+
+      if (jewel.count <= 0) {
         if (!this.isGameOverSetter)
           throw new Error("game over setter was not found");
         this.isGameOverSetter(true);

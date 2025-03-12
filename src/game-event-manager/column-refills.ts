@@ -76,7 +76,10 @@ export class ColumnRefillsGameEvent extends GameEvent {
               this.isComplete = true;
               console.log("animation registry was empty in ColumnRefill");
             } else
-              console.log("animation registry not yet empty in ColumnRefill");
+              console.log(
+                "animation registry not yet empty in ColumnRefill",
+                this.animationRegistry.activeAnimationCellPositions
+              );
           }
         );
 

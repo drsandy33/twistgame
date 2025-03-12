@@ -47,6 +47,16 @@ export class Jewel {
     // const colorRgba = hexToRgba(JEWEL_COLOR_STRINGS[this.jewelColor], 1);
     // context.fillStyle = colorRgba;
     // context.fill();
+    const time = Date.now() * 0.002; // Adjust the multiplier for speed
+    // Calculate the scaling factor using a sine wave
+    let scalingFactor = 1;
+    if (
+      this.jewelType === JewelType.Counting ||
+      this.jewelType === JewelType.MarkedLocked
+    )
+      scalingFactor = (Math.sin(time) + 1) / 2; // This will give a value between 0 and 1
+    const scaledValue = 0.75 + scalingFactor * 0.2; // Scale between 0.5 and 1.0
+
     const imagePath = JEWEL_COLOR_URLS[this.jewelColor];
     const image = imageManager.cachedImages[imagePath];
     if (image instanceof Image) {
@@ -61,6 +71,7 @@ export class Jewel {
         desiredWidth,
         desiredHeight
       );
+
       if (
         this.jewelType === JewelType.Fire ||
         this.jewelType === JewelType.MarkedLocked ||
@@ -74,10 +85,7 @@ export class Jewel {
         if (!(image instanceof Image))
           throw new Error("special jewel indicator image not found");
         const aspectRatio = image.width / image.height;
-        const scalingFactor =
-          (Date.now() % SPECIAL_JEWEL_PULSING_ANIMATION_DURATION) /
-          SPECIAL_JEWEL_PULSING_ANIMATION_DURATION;
-        const scaledValue = 0.5 + scalingFactor * 0.5;
+
         const desiredHeight = (JEWEL_DIAMETER / 2) * scaledValue;
         const desiredWidth = desiredHeight * aspectRatio;
         context.beginPath();
@@ -103,7 +111,8 @@ export class Jewel {
       context.fillStyle = `rgba(255,255,255,${this.opacity})`;
       context.textAlign = "center";
       context.textBaseline = "middle";
-      context.font = "20px sans";
+      const fontSize = 20 * scaledValue;
+      context.font = `${fontSize}px sans`;
       context.fillText(
         this.count.toString(),
         this.pixelPosition.x,
@@ -125,11 +134,11 @@ export class Jewel {
       context.stroke();
     }
 
-    if (this.isSelected === false) return;
-    context.beginPath();
-    context.arc(x, y, JEWEL_DIAMETER / 2, 0, 2 * Math.PI);
-    context.strokeStyle = "white";
-    context.lineWidth = 5;
-    context.stroke();
+    // if (this.isSelected === false) return;
+    // context.beginPath();
+    // context.arc(x, y, JEWEL_DIAMETER / 2, 0, 2 * Math.PI);
+    // context.strokeStyle = "white";
+    // context.lineWidth = 5;
+    // context.stroke();
   }
 }

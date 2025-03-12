@@ -24,7 +24,7 @@ export class JewelRemovalsGameEvent extends GameEvent {
   start(): void {
     this.isComplete = true;
     const matches = matchChecker.checkForMatches();
-    grid.markMatchedJewels(matches);
+    grid.markMatchedJewelsAndStopCountingMatchedJewels(matches);
 
     if (matches.length === 0) this.isComplete = true;
 
@@ -148,7 +148,7 @@ export class JewelRemovalsGameEvent extends GameEvent {
 
   onComplete(): void {
     grid.updateScore(this.numJewelsMarkedForRemoval);
-
+    grid.checkForGameOver();
     if (this.numJewelsMarkedForRemoval > 0)
       gameEventManager.addEvent(new ColumnRefillsGameEvent());
   }

@@ -1,21 +1,29 @@
+import { useState } from "react";
 import { gameEventManager, grid } from "./App";
 import "./App.css";
 import { JEWEL_DIAMETER, SELECT_GRID_SIZE } from "./app-consts";
-import { JewelRemovalsGameEvent } from "./game-event-manager/jewel-removals";
+
 import { QuartetRotationGameEvent } from "./game-event-manager/jewel-rotation";
 import { JewelQuartet, Point } from "./jewel-quartet";
+//import {ReactComponent as SelectCircle}  from "../public/vite.svg";
 
 interface SelectBoxProps {
   x: number;
   y: number;
 }
 export function SelectBox(selectBoxProps: SelectBoxProps) {
+  const [isHovered, setIsHovered] = useState(false);
   const quartet = new JewelQuartet(
     new Point(selectBoxProps.x, selectBoxProps.y)
   );
 
   function handleMouseLeave() {
+    setIsHovered(false);
     grid.deselectAllJewels();
+  }
+  function handleMouseEnter() {
+    quartet.selectJewels(grid);
+    setIsHovered(true);
   }
 
   function handleMouseDown() {
@@ -30,10 +38,12 @@ export function SelectBox(selectBoxProps: SelectBoxProps) {
     <button
       className="select-box"
       style={{ height: JEWEL_DIAMETER, width: JEWEL_DIAMETER }}
-      onMouseEnter={() => quartet.selectJewels(grid)}
+      onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onMouseDown={handleMouseDown}
-    ></button>
+    >
+      {isHovered && <div className="selection-circle" />}
+    </button>
   );
 }
 export function SelectGrid() {

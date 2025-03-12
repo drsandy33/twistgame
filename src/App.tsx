@@ -64,7 +64,6 @@ function App() {
     // context.translate(0, 100);
 
     const matches = matchChecker.checkForMatches();
-    grid.markMatchedJewels(matches);
 
     grid.numJewelsSetter = setNumJewels;
     grid.numJewelsRemovedSetter = setNumJewelsRemoved;
