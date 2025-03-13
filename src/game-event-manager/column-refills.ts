@@ -1,19 +1,19 @@
 import cloneDeep from "lodash.clonedeep";
 import { GameEvent, GameEventType } from ".";
-import { AnimationRegistry } from "../animation-registry";
-import { gameEventManager, grid, gridRefiller, matchChecker } from "../App";
 import { Point } from "../types";
 import { TranslationAnimation } from "../jewel/translation-animation";
 import { JewelRemovalsGameEvent } from "./jewel-removals";
 import { getJewelPixelPosition } from "../grid";
+import { TwistGame } from "../game";
+import { useGameStore } from "../stores/game-store";
 
 export class ColumnRefillsGameEvent extends GameEvent {
-  animationRegistry = new AnimationRegistry();
-  constructor() {
-    super(GameEventType.ColumnRefill);
+  constructor(game: TwistGame) {
+    super(GameEventType.ColumnRefill, game);
   }
 
   start(): void {
+    const { grid, gridRefiller } = this.game;
     const replacements = gridRefiller.createReplacements();
 
     grid.getColumns().forEach((column, i) => {
@@ -60,10 +60,6 @@ export class ColumnRefillsGameEvent extends GameEvent {
         const positionToAssign = unassignedEmptyPositions.shift();
         if (!positionToAssign) throw new Error("position to assign not found");
 
-        this.animationRegistry.register(
-          cloneDeep(positionToAssign.cellPosition)
-        );
-
         currentJewel.animations.push(
           new TranslationAnimation(
             cloneDeep(currentJewel.pixelPosition),
@@ -74,17 +70,6 @@ export class ColumnRefillsGameEvent extends GameEvent {
                 cloneDeep(positionToAssign.cellPosition),
                 currentJewel
               );
-              this.animationRegistry.unregister(
-                cloneDeep(positionToAssign.cellPosition)
-              );
-              if (this.animationRegistry.isEmpty()) {
-                this.isComplete = true;
-                console.log("animation registry was empty in ColumnRefill");
-              } else
-                console.log(
-                  "animation registry not yet empty in ColumnRefill",
-                  this.animationRegistry.activeAnimationCellPositions
-                );
             }
           )
         );
@@ -96,9 +81,16 @@ export class ColumnRefillsGameEvent extends GameEvent {
   }
 
   onComplete(): void {
+    const { matchChecker, grid, gameEventManager, gridRefiller } = this.game;
     const matches = matchChecker.checkForMatches();
-    if (grid.numJewelsSetter) grid.numJewelsSetter(grid.getAllJewels().length);
+
+    gridRefiller.replacements = [];
+
+    useGameStore.getState().mutateState((state) => {
+      state.numJewels = grid.getAllJewels().length;
+    });
+
     if (matches.length > 0)
-      gameEventManager.addEvent(new JewelRemovalsGameEvent());
+      gameEventManager.addEvent(new JewelRemovalsGameEvent(this.game));
   }
 }

@@ -9,4 +9,9 @@ export class Point {
   isEqual(other: Point) {
     return other.x === this.x && other.y === this.y;
   }
+  distance(other: Point) {
+    const dx = other.x - this.x;
+    const dy = other.y - this.y;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
 }

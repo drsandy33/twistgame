@@ -1,4 +1,5 @@
-import { grid, gridRefiller } from "../App";
+import { TwistGame } from "../game";
+import { useGameStore } from "../stores/game-store";
 
 export enum GameEventType {
   QuartetRotation,
@@ -13,9 +14,13 @@ export const GAME_EVENT_TYPE_STRINGS: Record<GameEventType, string> = {
 };
 
 export abstract class GameEvent {
-  protected isComplete: boolean = false;
-  constructor(public type: GameEventType) {}
+  constructor(
+    public type: GameEventType,
+    protected game: TwistGame
+  ) {}
   getIsComplete() {
+    const { grid, gridRefiller } = this.game;
+
     const allJewels = grid.getAllJewels();
     if (gridRefiller && gridRefiller.replacements) {
       for (const row of gridRefiller.replacements) {
@@ -35,7 +40,7 @@ export abstract class GameEvent {
 export class GameEventManager {
   private events: GameEvent[] = [];
   private current: GameEvent | undefined = undefined;
-  constructor() {}
+  constructor(private game: TwistGame) {}
 
   process() {
     const currentEventCompleted = this.getCurrent()?.getIsComplete();
@@ -60,8 +65,9 @@ export class GameEventManager {
   }
 
   setCurrentStepForDebug(eventType: GameEventType | null) {
-    if (!grid.currentlyProcessingGameEventTypeSetter) return;
-    grid.currentlyProcessingGameEventTypeSetter(eventType);
+    useGameStore.getState().mutateState((state) => {
+      state.currentlyProcessingEventType = eventType;
+    });
   }
 
   startProcessingNext() {

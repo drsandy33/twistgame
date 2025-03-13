@@ -93,6 +93,11 @@ export function getOrbitPosition(center: Point, radius: number, angle: number) {
 export function easeInOut(t: number) {
   return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
 }
+
+export function easeIn(t: number) {
+  return t * t;
+}
+
 export function findHypoteneuseCenterPoint(
   a: number,
   b: number,
@@ -137,14 +142,15 @@ export function lerp(start: number, end: number, ratio: number): number {
   return start + (end - start) * ratio;
 }
 export function hexToRgba(hex: string, alpha: number) {
-  // Remove the hash at the start if it's there
   hex = hex.replace(/^#/, "");
-
-  // Parse the r, g, b values
   let r = parseInt(hex.substring(0, 2), 16);
   let g = parseInt(hex.substring(2, 4), 16);
   let b = parseInt(hex.substring(4, 6), 16);
-
-  // Return the rgba string
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+export function getRandomHexColor(): string {
+  const randomColor = Math.floor(Math.random() * 16777215);
+  const hexColor = `#${randomColor.toString(16).padStart(6, "0")}`;
+  return hexColor;
 }

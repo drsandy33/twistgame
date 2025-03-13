@@ -1,6 +1,10 @@
 import { Jewel } from ".";
 import { imageManager } from "../App";
-import { JEWEL_DIAMETER } from "../app-consts";
+import {
+  JEWEL_DIAMETER,
+  SPECIAL_JEWEL_PULSING_ANIMATION_DURATION,
+} from "../app-consts";
+import { useGameStore } from "../stores/game-store";
 import { Point } from "../types";
 import { hexToRgba } from "../utils";
 import {
@@ -20,16 +24,27 @@ export function drawSelf(this: Jewel, context: CanvasRenderingContext2D) {
   if (this.isExploding) drawExplosionEffect(context, this.pixelPosition);
   if (this.isBeingZapped) drawZapEffect(context, this.pixelPosition);
   // FOR TESTING
-  drawJewelIdTag(context, this);
-  drawJewelDebugText(context, this);
+  if (useGameStore.getState().showDebug) {
+    drawJewelIdTag(context, this);
+    drawJewelDebugText(context, this);
+    drawJewelMatchIndicator(context, this);
+  }
 }
 
 function getPulsingAnimationScaledValue(jewelType: JewelType) {
-  const time = Date.now() * 0.002;
+  const time =
+    (Date.now() % SPECIAL_JEWEL_PULSING_ANIMATION_DURATION) /
+    SPECIAL_JEWEL_PULSING_ANIMATION_DURATION;
   let scalingFactor = 1;
-  if (jewelType === JewelType.Counting || jewelType === JewelType.MarkedLocked)
-    scalingFactor = (Math.sin(time) + 1) / 2;
-  return 0.75 + scalingFactor * 0.2;
+
+  if (
+    jewelType === JewelType.Counting ||
+    jewelType === JewelType.MarkedLocked
+  ) {
+    scalingFactor = (Math.sin(time * 2 * Math.PI) + 1) / 2;
+  }
+
+  return 0.75 + scalingFactor * 0.5;
 }
 
 function drawJewelImage(context: CanvasRenderingContext2D, jewel: Jewel) {
@@ -104,6 +119,8 @@ function drawJewelCount(
   context.fillStyle = `rgba(0,0,0,${jewel.opacity})`;
   context.fill();
   context.fillStyle = `rgba(255,255,255,${jewel.opacity})`;
+  if (jewel.count < 10) context.fillStyle = "yellow";
+  if (jewel.count < 3) context.fillStyle = "red";
   context.textAlign = "center";
   context.textBaseline = "middle";
   const fontSize = 20 * animatedSymbolScaling;
@@ -116,21 +133,11 @@ function drawJewelCount(
 }
 
 function drawExplosionEffect(context: CanvasRenderingContext2D, center: Point) {
-  const { x, y } = center;
-  context.beginPath();
-  context.arc(x, y, JEWEL_DIAMETER / 3, 0, 2 * Math.PI);
-  context.strokeStyle = "orange";
-  context.lineWidth = 5;
-  context.stroke();
+  drawCircleAtPoint(context, center, "orange");
 }
 
 function drawZapEffect(context: CanvasRenderingContext2D, center: Point) {
-  const { x, y } = center;
-  context.beginPath();
-  context.arc(x, y, JEWEL_DIAMETER / 3, 0, 2 * Math.PI);
-  context.strokeStyle = "dodgerblue";
-  context.lineWidth = 5;
-  context.stroke();
+  drawCircleAtPoint(context, center, "dodgerblue");
 }
 
 function drawJewelColorCircle(
@@ -148,12 +155,7 @@ function drawJewelColorCircle(
 
 function drawSelectionCircle(context: CanvasRenderingContext2D, jewel: Jewel) {
   if (jewel.isSelected === false) return;
-  const { x, y } = jewel.pixelPosition;
-  context.beginPath();
-  context.arc(x, y, JEWEL_DIAMETER / 2, 0, 2 * Math.PI);
-  context.strokeStyle = "white";
-  context.lineWidth = 5;
-  context.stroke();
+  drawCircleAtPoint(context, jewel.pixelPosition, "white");
 }
 
 function drawJewelIdTag(context: CanvasRenderingContext2D, jewel: Jewel) {
@@ -180,9 +182,36 @@ function drawJewelIdTag(context: CanvasRenderingContext2D, jewel: Jewel) {
 function drawJewelDebugText(context: CanvasRenderingContext2D, jewel: Jewel) {
   const { x, y } = jewel.pixelPosition;
   context.fillStyle = `rgba(255,255,255,1)`;
+  context.fillStyle = `rgba(0,0,0,1)`;
   context.textAlign = "center";
   context.textBaseline = "middle";
   const fontSize = 10;
   context.font = `${fontSize}px sans`;
-  context.fillText(JEWEL_TYPE_STRINGS[jewel.jewelType], x, y);
+  context.fillText(
+    JEWEL_TYPE_STRINGS[jewel.jewelType] + " " + jewel.opacity,
+    x,
+    y
+  );
+}
+
+function drawJewelMatchIndicator(
+  context: CanvasRenderingContext2D,
+  jewel: Jewel
+) {
+  if (!jewel.isPartOfMatch) return;
+  if (!jewel.matchColorOption) return;
+  drawCircleAtPoint(context, jewel.pixelPosition, jewel.matchColorOption);
+}
+
+function drawCircleAtPoint(
+  context: CanvasRenderingContext2D,
+  center: Point,
+  color: string
+) {
+  const { x, y } = center;
+  context.beginPath();
+  context.arc(x, y, JEWEL_DIAMETER / 2, 0, 2 * Math.PI);
+  context.strokeStyle = color;
+  context.lineWidth = 5;
+  context.stroke();
 }
