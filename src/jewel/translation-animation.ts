@@ -1,19 +1,21 @@
 import { Jewel } from ".";
 import { FALLING_ANIMATION_DURATION } from "../app-consts";
-import { Point } from "../jewel-quartet";
+import { Point } from "../types";
+import { Milliseconds } from "../types";
 import { lerp } from "../utils";
-import { Milliseconds } from "./rotation-animation";
+import { JewelAnimation } from "./animation";
 
-export class TranslationAnimation {
-  timeStarted: Milliseconds = Date.now();
+export class TranslationAnimation extends JewelAnimation {
   duration: Milliseconds = FALLING_ANIMATION_DURATION;
 
   constructor(
     private originalPosition: Point,
     private destinationPosition: Point,
-    private jewel: Jewel,
-    private onComplete: () => void
-  ) {}
+    jewel: Jewel,
+    onComplete: () => void
+  ) {
+    super(jewel, onComplete);
+  }
   update() {
     const elapsed = Date.now() - this.timeStarted;
     const percentElapsed = elapsed / this.duration;
@@ -34,10 +36,5 @@ export class TranslationAnimation {
 
     this.jewel.pixelPosition.x = newPosition.x;
     this.jewel.pixelPosition.y = newPosition.y;
-
-    if (percentElapsed >= 1) {
-      this.onComplete();
-      return true;
-    }
   }
 }

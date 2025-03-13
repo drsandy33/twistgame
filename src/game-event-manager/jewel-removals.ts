@@ -2,17 +2,13 @@ import cloneDeep from "lodash.clonedeep";
 import { GameEvent, GameEventType } from ".";
 import { AnimationRegistry } from "../animation-registry";
 import { gameEventManager, grid, matchChecker } from "../App";
-import { Point } from "../jewel-quartet";
+import { Point } from "../types";
 import { FadeoutAnimation } from "../jewel/fadeout-animation";
 import { JewelType } from "../jewel/jewel-consts";
 import { TranslationAnimation } from "../jewel/translation-animation";
 import { ColumnRefillsGameEvent } from "./column-refills";
 import { Match } from "../match-checker";
-import {
-  GRID_CELL_DIMENSIONS,
-  JEWEL_TYPE_CHANCES_BY_LEVEL,
-  MINIMUM_MATCH_LENGTH,
-} from "../app-consts";
+import { GRID_CELL_DIMENSIONS, MINIMUM_MATCH_LENGTH } from "../app-consts";
 
 export class JewelRemovalsGameEvent extends GameEvent {
   animationRegistry = new AnimationRegistry();
@@ -22,7 +18,6 @@ export class JewelRemovalsGameEvent extends GameEvent {
   }
 
   start(): void {
-    this.isComplete = true;
     const matches = matchChecker.checkForMatches();
     grid.markMatchedJewelsAndStopCountingMatchedJewels(matches);
 
@@ -44,13 +39,16 @@ export class JewelRemovalsGameEvent extends GameEvent {
         match.jewelPositions.forEach((jewelPosition) => {
           const jewel = grid.getJewelAtPosition(jewelPosition);
           this.animationRegistry.register(jewelPosition);
-          this.isComplete = false;
-          jewel.fadeoutAnimation = new FadeoutAnimation(jewel, () => {
-            this.animationRegistry.unregister(jewelPosition);
-            if (this.animationRegistry.isEmpty()) this.isComplete = true;
-          });
+
           jewel.shouldBeReplaced = true;
           this.numJewelsMarkedForRemoval += 1;
+
+          jewel.animations.push(
+            new FadeoutAnimation(jewel, () => {
+              this.animationRegistry.unregister(jewelPosition);
+              if (this.animationRegistry.isEmpty()) this.isComplete = true;
+            })
+          );
         });
       } else if (match.longestAxisLength < 5) {
         this.handleSpecialJewelCreation(
@@ -76,6 +74,8 @@ export class JewelRemovalsGameEvent extends GameEvent {
     const newSpecialJewelPosition = positionGetter(match);
 
     const newSpecialJewel = grid.getJewelAtPosition(newSpecialJewelPosition);
+    newSpecialJewel.isExploding = false;
+    newSpecialJewel.isBeingZapped = false;
     newSpecialJewel.jewelType = jewelType;
     if (newSpecialJewel.shouldBeReplaced) {
       newSpecialJewel.shouldBeReplaced = false;
@@ -85,25 +85,29 @@ export class JewelRemovalsGameEvent extends GameEvent {
 
     match.jewelPositions.forEach((jewelPosition) => {
       const currentJewel = grid.getJewelAtPosition(jewelPosition);
-      if (newSpecialJewelPosition.isEqual(jewelPosition))
-        return console.log("Special jewel skipped"); // skip the fire jewel
+
+      if (newSpecialJewel.id === currentJewel.id) return;
 
       this.animationRegistry.register(jewelPosition);
-      this.isComplete = false;
-      currentJewel.coalescingAnimation = new TranslationAnimation(
-        cloneDeep(currentJewel.pixelPosition),
-        cloneDeep(newSpecialJewel.pixelPosition),
-        currentJewel,
-        () => {
-          currentJewel.coalescingAnimation = null;
-          this.animationRegistry.unregister(jewelPosition);
+      currentJewel.shouldBeReplaced = true;
+      this.numJewelsMarkedForRemoval += 1;
 
-          currentJewel.shouldBeReplaced = true;
-          this.numJewelsMarkedForRemoval += 1;
+      currentJewel.animations.push(
+        new TranslationAnimation(
+          cloneDeep(currentJewel.pixelPosition),
+          cloneDeep(newSpecialJewel.pixelPosition),
+          currentJewel,
+          () => {
+            this.animationRegistry.unregister(jewelPosition);
 
-          currentJewel.opacity = 0;
-          if (this.animationRegistry.isEmpty()) this.isComplete = true;
-        }
+            currentJewel.opacity = 0;
+            console.log(
+              "unregistered in jewel removals",
+              this.animationRegistry.activeAnimationCellPositions
+            );
+            if (this.animationRegistry.isEmpty()) this.isComplete = true;
+          }
+        )
       );
     });
   }
@@ -118,13 +122,6 @@ export class JewelRemovalsGameEvent extends GameEvent {
       const affectedPositions = affectedPositionsGetter(jewelPosition);
 
       affectedPositions.forEach((affectedPosition) => {
-        if (
-          affectedPosition.x < 0 ||
-          affectedPosition.x > GRID_CELL_DIMENSIONS.COLUMNS - 1 ||
-          affectedPosition.y < 0 ||
-          affectedPosition.y > GRID_CELL_DIMENSIONS.ROWS - 1
-        )
-          return;
         const affectedJewel = grid.getJewelAtPosition(affectedPosition);
         if (affectedJewel.shouldBeReplaced) return;
         if (jewel.jewelType === JewelType.Fire)
@@ -188,10 +185,15 @@ function getLightningJewelPosition(match: Match): Point {
 
 function getExplosionPositions(center: Point) {
   const positions: Point[] = [];
+  const { COLUMNS, ROWS } = GRID_CELL_DIMENSIONS;
 
   for (let rowIndex = -1; rowIndex < 2; rowIndex += 1) {
     for (let i = -1; i < 2; i += 1) {
-      positions.push(new Point(center.x + i, center.y + rowIndex));
+      const x = center.x + i;
+      const y = center.y + rowIndex;
+      if (x < 0 || x > COLUMNS - 1 || y < 0 || y > ROWS - 1) continue;
+
+      positions.push(new Point(x, y));
     }
   }
   return positions;

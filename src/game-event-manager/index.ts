@@ -1,4 +1,4 @@
-import { grid } from "../App";
+import { grid, gridRefiller } from "../App";
 
 export enum GameEventType {
   QuartetRotation,
@@ -16,7 +16,17 @@ export abstract class GameEvent {
   protected isComplete: boolean = false;
   constructor(public type: GameEventType) {}
   getIsComplete() {
-    return this.isComplete;
+    const allJewels = grid.getAllJewels();
+    if (gridRefiller && gridRefiller.replacements) {
+      for (const row of gridRefiller.replacements) {
+        allJewels.push(...row);
+      }
+    }
+
+    for (const jewel of allJewels) {
+      if (jewel.animations.length) return false;
+    }
+    return true;
   }
   abstract start(): void;
   abstract onComplete(): void;
@@ -65,12 +75,4 @@ export class GameEventManager {
   getCurrent() {
     return this.current;
   }
-  // rotate
-  // find matches
-  // all at once:
-  // - coalesce 4s
-  // - fadeout 3s
-  // - explode
-  // refill
-  // fall
 }

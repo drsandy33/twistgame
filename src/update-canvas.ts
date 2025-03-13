@@ -1,36 +1,31 @@
 import { grid, gridRefiller } from "./App";
 import { Jewel } from "./jewel";
+import { JewelAnimation } from "./jewel/animation";
 
 export function updateCanvas(context: CanvasRenderingContext2D) {
-  const jewelsToUpdate: Jewel[] = [];
+  const jewelsToUpdate: Jewel[] = grid.getAllJewels();
 
-  jewelsToUpdate.push(...grid.getAllJewels());
   gridRefiller.replacements?.forEach((column) => {
     jewelsToUpdate.push(...column);
   });
 
   jewelsToUpdate.forEach((jewel) => {
-    if (jewel.rotationAnimation) {
-      const rotationAnimationIsComplete = jewel.rotationAnimation.update();
-      if (rotationAnimationIsComplete) jewel.rotationAnimation = null;
-    }
-    if (jewel.fadeoutAnimation) {
-      const fadeoutAnimationIsComplete = jewel.fadeoutAnimation?.update();
-      if (fadeoutAnimationIsComplete) jewel.fadeoutAnimation = null;
-    }
-    if (jewel.fallingAnimation) {
-      const fallingAnimationIsComplete = jewel.fallingAnimation?.update();
-      if (fallingAnimationIsComplete) jewel.fallingAnimation = null;
-    }
-    if (jewel.coalescingAnimation) {
-      const coalescingAnimationIsComplete = jewel.coalescingAnimation?.update();
-      if (coalescingAnimationIsComplete) jewel.coalescingAnimation = null;
-    }
-  });
-  grid.drawSelf(context);
-  gridRefiller.replacements?.forEach((column) => {
-    column.forEach((jewel) => {
-      jewel.drawSelf(context);
+    const animationsToKeep: JewelAnimation[] = [];
+    jewel.animations.forEach((animation) => {
+      animation.update();
+
+      if (animation.isComplete()) {
+        animation.onComplete();
+      } else {
+        animationsToKeep.push(animation);
+      }
     });
+    jewel.animations = animationsToKeep;
+  });
+
+  grid.drawSelf(context);
+
+  jewelsToUpdate.forEach((jewel) => {
+    jewel.drawSelf(context);
   });
 }
