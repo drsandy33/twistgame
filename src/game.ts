@@ -5,9 +5,8 @@ import { JewelAnimation } from "./jewel/animation";
 import { Grid } from "./grid";
 import { MatchChecker } from "./match-checker";
 import { GridRefiller } from "./grid-refiller";
-import { SetStateAction } from "react";
 import { chooseRandomFromArray, iterateNumericEnum } from "./utils";
-import { JewelColor } from "./jewel/jewel-consts";
+import { JewelColor, JewelType } from "./jewel/jewel-consts";
 import { useGameStore } from "./stores/game-store";
 
 export class TwistGame {
@@ -17,12 +16,14 @@ export class TwistGame {
   matchChecker = new MatchChecker(this.grid);
   gridRefiller = new GridRefiller(this.grid);
   gameEventManager = new GameEventManager(this);
+  gameLoopStopped: boolean = false;
 
   constructor(private context: CanvasRenderingContext2D) {
     this.removeMatchesFromGrid();
   }
 
   startGameLoop() {
+    this.gameLoopStopped = false;
     this.lastAnimationFrameId = requestAnimationFrame((timestamp) => {
       this.tick(timestamp);
     });
@@ -30,6 +31,7 @@ export class TwistGame {
 
   stopGameLoop() {
     cancelAnimationFrame(this.lastAnimationFrameId);
+    this.gameLoopStopped = true;
   }
 
   reset() {
@@ -38,6 +40,8 @@ export class TwistGame {
 
     useGameStore.getState().mutateState((state) => {
       state.numJewelsRemoved = 0;
+      state.isGameOver = false;
+      state.currentLevel = 0;
     });
 
     grid.getAllJewels().forEach((jewel) => {
@@ -53,12 +57,12 @@ export class TwistGame {
     useGameStore.getState().mutateState((state) => {
       state.isGameOver = false;
     });
-    grid.isGameOver = false;
 
     this.startGameLoop();
   }
 
   tick(timestamp: number) {
+    if (this.gameLoopStopped) return;
     this.gameEventManager.process();
 
     if (timestamp - this.lastRenderTimestamp >= RENDER_INTERVAL)
@@ -125,5 +129,18 @@ export class TwistGame {
     }
     if (numAttemptsToRemoveAllMatches === maxAttempts)
       console.warn("failed to remove matches from initial grid");
+  }
+
+  checkForGameOver() {
+    this.grid.getAllJewels().forEach((jewel) => {
+      if (jewel.jewelType !== JewelType.Counting) return;
+
+      if (jewel.count <= 0) {
+        useGameStore.getState().mutateState((state) => {
+          state.isGameOver = true;
+        });
+        this.stopGameLoop();
+      }
+    });
   }
 }

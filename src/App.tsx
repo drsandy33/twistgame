@@ -18,8 +18,9 @@ export const imageManager = new ImageManager();
 
 function App() {
   const mutateGameState = useGameStore().mutateState;
-  const isGameOver = useGameStore().isGameOver;
   const showDebug = useGameStore().showDebug;
+  const numJewelsRemoved = useGameStore().numJewelsRemoved;
+  const currentLevel = useGameStore().currentLevel;
 
   useEffect(() => {
     const jewelImageURLs = Object.values(JEWEL_COLOR_URLS);
@@ -32,28 +33,39 @@ function App() {
     });
   }, []);
 
-  function handleNewGameClick() {
-    const { game } = gameSingletonHolder;
-    if (game !== null) game.reset();
-  }
-
   return (
-    <div className="bg-slate-700 h-screen">
-      <div className="p-4 flex flex-col items-center">
+    <div className="bg-slate-700 h-screen text-zinc-300">
+      <div className="p-4 flex flex-col items-center justify-center">
         <div className="h-[4px] w-full bg-zinc-300" />
         <h1 className="text-zinc-300 text-3xl font-bold pt-2 pb-2">
           twistgame (title TBD)
         </h1>
         <div className="h-[4px] w-full bg-zinc-300" />
       </div>
-      <div className="flex justify-center w-full max-w-[1080px] p-4 pt-0">
-        <div className="w-72 border-[3px] border-zinc-300 mr-2">score etc</div>
-        <GameBoard />
+      <div className="flex justify-center">
+        <div className="flex justify-center w-full max-w-[1080px] p-4 pt-0">
+          <div className="w-72 border-[3px] border-zinc-300 mr-2 p-2 pt-4">
+            <h3 className="text-2xl text-center">Score</h3>
+            <h3 className="text-2xl text-center">{numJewelsRemoved}</h3>
+            <h3 className="text-2xl text-center">Level</h3>
+            <h3 className="text-2xl text-center">{currentLevel}</h3>
+          </div>
+          <GameBoard />
+        </div>
       </div>
-      <dialog open={isGameOver} className="dialog">
-        <h3>GAME OVER !!!</h3>
-        <button onClick={handleNewGameClick}>Play Again</button>
-      </dialog>
+      <div className="w-full flex justify-center">
+        <button
+          onClick={() => {
+            mutateGameState((state) => {
+              state.showDebug = !state.showDebug;
+            });
+          }}
+          className="border border-zinc-300 text-lg p-2"
+        >
+          {showDebug ? "hide" : "show"} debug
+        </button>
+      </div>
+
       {showDebug && <DebugDisplay />}
     </div>
   );

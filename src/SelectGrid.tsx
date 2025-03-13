@@ -10,6 +10,7 @@ import { QuartetRotationGameEvent } from "./game-event-manager/jewel-rotation";
 import { JewelQuartet } from "./jewel-quartet";
 import SelectCircle from "./assets/selection-circle.svg?react";
 import { Point } from "./types";
+import { useGameStore } from "./stores/game-store";
 
 interface SelectBoxProps {
   x: number;
@@ -50,7 +51,7 @@ export function SelectBox(selectBoxProps: SelectBoxProps) {
     const { grid, gameEventManager } = gameSingletonHolder.game;
     if (e.button !== 0) return;
     const clickIsForbidden =
-      grid.isGameOver ||
+      useGameStore.getState().isGameOver ||
       gameEventManager.isProcessing() ||
       !quartet.isRotatable(grid);
 

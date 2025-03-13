@@ -81,8 +81,10 @@ export class ColumnRefillsGameEvent extends GameEvent {
   }
 
   onComplete(): void {
-    const { matchChecker, grid, gameEventManager } = this.game;
+    const { matchChecker, grid, gameEventManager, gridRefiller } = this.game;
     const matches = matchChecker.checkForMatches();
+
+    gridRefiller.replacements = [];
 
     useGameStore.getState().mutateState((state) => {
       state.numJewels = grid.getAllJewels().length;

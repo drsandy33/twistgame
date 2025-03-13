@@ -13,6 +13,7 @@ export class GameState {
   isGameOver: boolean = false;
   currentlyProcessingEventType: null | GameEventType = null;
   showDebug: boolean = false;
+  currentLevel: number = 0;
 
   constructor(
     public mutateState: MutateState<GameState>,

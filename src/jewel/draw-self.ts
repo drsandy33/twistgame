@@ -4,6 +4,7 @@ import {
   JEWEL_DIAMETER,
   SPECIAL_JEWEL_PULSING_ANIMATION_DURATION,
 } from "../app-consts";
+import { useGameStore } from "../stores/game-store";
 import { Point } from "../types";
 import { hexToRgba } from "../utils";
 import {
@@ -23,9 +24,11 @@ export function drawSelf(this: Jewel, context: CanvasRenderingContext2D) {
   if (this.isExploding) drawExplosionEffect(context, this.pixelPosition);
   if (this.isBeingZapped) drawZapEffect(context, this.pixelPosition);
   // FOR TESTING
-  // drawJewelIdTag(context, this);
-  // drawJewelDebugText(context, this);
-  // drawJewelMatchIndicator(context, this);
+  if (useGameStore.getState().showDebug) {
+    drawJewelIdTag(context, this);
+    drawJewelDebugText(context, this);
+    drawJewelMatchIndicator(context, this);
+  }
 }
 
 function getPulsingAnimationScaledValue(jewelType: JewelType) {
@@ -179,6 +182,7 @@ function drawJewelIdTag(context: CanvasRenderingContext2D, jewel: Jewel) {
 function drawJewelDebugText(context: CanvasRenderingContext2D, jewel: Jewel) {
   const { x, y } = jewel.pixelPosition;
   context.fillStyle = `rgba(255,255,255,1)`;
+  context.fillStyle = `rgba(0,0,0,1)`;
   context.textAlign = "center";
   context.textBaseline = "middle";
   const fontSize = 10;

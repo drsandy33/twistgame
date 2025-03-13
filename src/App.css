@@ -23,7 +23,6 @@
 }
 .all-grids {
   position: relative;
-  border: 2px solid black;
   width: fit-content;
 }
 .select-grid {

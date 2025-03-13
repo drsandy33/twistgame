@@ -10,6 +10,7 @@ import { GRID_CELL_DIMENSIONS, MINIMUM_MATCH_LENGTH } from "../app-consts";
 import { getRandomHexColor } from "../utils";
 import { TwistGame } from "../game";
 import { Grid } from "../grid";
+import { useGameStore } from "../stores/game-store";
 
 export class JewelRemovalsGameEvent extends GameEvent {
   numJewelsMarkedForRemoval = 0;
@@ -138,7 +139,15 @@ export class JewelRemovalsGameEvent extends GameEvent {
   onComplete(): void {
     const { grid, gameEventManager } = this.game;
     grid.updateScore(this.numJewelsMarkedForRemoval);
-    grid.checkForGameOver();
+    useGameStore.getState().mutateState((state) => {
+      state.currentLevel = grid.getCurrentLevel();
+    });
+
+    this.game.checkForGameOver();
+    if (useGameStore.getState().isGameOver) {
+      return;
+    }
+
     grid.getAllJewels().forEach((jewel) => {
       jewel.isPartOfMatch = false;
     });

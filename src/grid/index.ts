@@ -25,7 +25,6 @@ export class Grid {
   rows: Jewel[][];
   pixelDimensions: Dimensions;
   cellDimensions: Dimensions;
-  isGameOver: boolean = false;
   numJewelsRemoved: number = 0;
 
   constructor() {
@@ -69,7 +68,7 @@ export class Grid {
       const row = [];
       for (let j = 0; j < numColumns; j = j + 1) {
         const jewelPlace = getJewelPixelPosition(i, j);
-        const jewel = createJewel(this.getCurrentLevel(), jewelPlace);
+        const jewel = createJewel(0, jewelPlace);
         row.push(jewel);
       }
       rows.push(row);
@@ -162,19 +161,6 @@ export class Grid {
     this.getAllJewels().forEach((jewel) => {
       if (jewel.jewelType !== JewelType.Counting) return;
       jewel.count -= 1;
-    });
-  }
-  checkForGameOver() {
-    console.log("checking for game over");
-    this.getAllJewels().forEach((jewel) => {
-      if (jewel.jewelType !== JewelType.Counting) return;
-
-      if (jewel.count <= 0) {
-        useGameStore.getState().mutateState((state) => {
-          state.isGameOver = true;
-        });
-        this.isGameOver = true;
-      }
     });
   }
 
