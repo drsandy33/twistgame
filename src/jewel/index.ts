@@ -18,6 +18,7 @@ export class Jewel {
   animations: JewelAnimation[] = [];
   opacity: number = 1;
   id: number = nextJewelId++;
+  matchColorOption: string | undefined;
   constructor(
     jewelColor: JewelColor,
     jewelType: JewelType,

@@ -45,6 +45,7 @@ export class MatchChecker {
     });
 
     const rowMatches = this.checkAxisForMatches(this.grid.rows, Axis.Row);
+
     this.addIntersectingJewelPositionsToRowMatch(rowMatches);
 
     rowMatches.forEach((match) => {
@@ -110,6 +111,7 @@ export class MatchChecker {
             jewelCellPosition,
             -1
           );
+
         const matchedJewelsBelow =
           this.getIntersectingMatchedJewelPositionsInDirection(
             currentJewel,
@@ -142,15 +144,24 @@ export class MatchChecker {
     while (!doneChecking) {
       const rowIndex = jewelCellPosition.y + currentIndex;
       if (rowIndex < 0 || rowIndex === GRID_CELL_DIMENSIONS.ROWS) break;
+
       const positionToCheck = new Point(
         jewelCellPosition.x,
         jewelCellPosition.y + currentIndex
       );
+
       const jewelToCheck = this.grid.getJewelAtPosition(positionToCheck);
-      if (jewelToCheck.isPartOfMatch) continue;
-      if (jewelToCheck.jewelColor === currentJewel.jewelColor)
-        intersectingMatchedJewelPositions.push(positionToCheck);
-      else doneChecking = true;
+
+      if (
+        jewelToCheck.isPartOfMatch ||
+        jewelToCheck.jewelColor !== currentJewel.jewelColor
+      ) {
+        doneChecking = true;
+        break;
+      }
+
+      jewelToCheck.isPartOfMatch = true;
+      intersectingMatchedJewelPositions.push(positionToCheck);
 
       currentIndex += direction;
     }

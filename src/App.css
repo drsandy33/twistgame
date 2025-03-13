@@ -17,6 +17,9 @@
   background-color: transparent;
   border: 0px;
   position: relative;
+  /* &:hover { */
+  /* border: 5px solid white; */
+  /* } */
 }
 .all-grids {
   position: relative;

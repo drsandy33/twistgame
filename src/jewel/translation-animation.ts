@@ -1,12 +1,12 @@
 import { Jewel } from ".";
-import { FALLING_ANIMATION_DURATION } from "../app-consts";
+import { TIME_TO_TRANSLATE_ONE_PIXEL } from "../app-consts";
 import { Point } from "../types";
 import { Milliseconds } from "../types";
-import { lerp } from "../utils";
+import { easeIn, lerp } from "../utils";
 import { JewelAnimation } from "./animation";
 
 export class TranslationAnimation extends JewelAnimation {
-  duration: Milliseconds = FALLING_ANIMATION_DURATION;
+  duration: Milliseconds;
 
   constructor(
     private originalPosition: Point,
@@ -15,6 +15,8 @@ export class TranslationAnimation extends JewelAnimation {
     onComplete: () => void
   ) {
     super(jewel, onComplete);
+    const distance = originalPosition.distance(destinationPosition);
+    this.duration = TIME_TO_TRANSLATE_ONE_PIXEL * distance;
   }
   update() {
     const elapsed = Date.now() - this.timeStarted;
@@ -25,12 +27,12 @@ export class TranslationAnimation extends JewelAnimation {
       lerp(
         this.originalPosition.x,
         this.destinationPosition.x,
-        cappedPercentElapsed
+        easeIn(cappedPercentElapsed)
       ),
       lerp(
         this.originalPosition.y,
         this.destinationPosition.y,
-        cappedPercentElapsed
+        easeIn(cappedPercentElapsed)
       )
     );
 

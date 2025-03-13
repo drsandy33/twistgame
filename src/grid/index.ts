@@ -13,8 +13,8 @@ import {
   chooseRandomFromArray,
   iterateNumericEnumKeyedRecord,
 } from "../utils";
-import { GameEventType } from "../game-event-manager";
 import { Match } from "../match-checker";
+import { useGameStore } from "../stores/game-store";
 
 export interface Dimensions {
   width: number;
@@ -26,13 +26,7 @@ export class Grid {
   pixelDimensions: Dimensions;
   cellDimensions: Dimensions;
   isGameOver: boolean = false;
-  numJewelsSetter: React.Dispatch<SetStateAction<number>> | null = null;
-  numJewelsRemovedSetter: React.Dispatch<SetStateAction<number>> | null = null;
-  isGameOverSetter: React.Dispatch<SetStateAction<boolean>> | null = null;
   numJewelsRemoved: number = 0;
-  currentlyProcessingGameEventTypeSetter: React.Dispatch<
-    SetStateAction<GameEventType | null>
-  > | null = null;
 
   constructor() {
     this.cellDimensions = {
@@ -50,22 +44,20 @@ export class Grid {
   }
   updateScore(update: number) {
     this.numJewelsRemoved += update;
-    if (this.numJewelsRemovedSetter !== null)
-      this.numJewelsRemovedSetter(this.numJewelsRemoved);
+    useGameStore.getState().mutateState((state) => {
+      state.numJewelsRemoved = this.numJewelsRemoved;
+    });
   }
   getCurrentLevel() {
-    // Define the base points required for the first level
     const basePoints = 10;
-    // Define the growth factor for the geometric progression
     const growthFactor = 2;
 
-    // Calculate the level based on the points
     let level = 0;
     let requiredPoints = basePoints;
 
     while (this.numJewelsRemoved >= requiredPoints) {
       level++;
-      requiredPoints *= growthFactor; // Increase the required points geometrically
+      requiredPoints *= growthFactor;
     }
 
     return level;
@@ -77,7 +69,7 @@ export class Grid {
       const row = [];
       for (let j = 0; j < numColumns; j = j + 1) {
         const jewelPlace = getJewelPixelPosition(i, j);
-        const jewel = createJewel(0, jewelPlace);
+        const jewel = createJewel(this.getCurrentLevel(), jewelPlace);
         row.push(jewel);
       }
       rows.push(row);
@@ -178,12 +170,38 @@ export class Grid {
       if (jewel.jewelType !== JewelType.Counting) return;
 
       if (jewel.count <= 0) {
-        if (!this.isGameOverSetter)
-          throw new Error("game over setter was not found");
-        this.isGameOverSetter(true);
+        useGameStore.getState().mutateState((state) => {
+          state.isGameOver = true;
+        });
         this.isGameOver = true;
       }
     });
+  }
+
+  assignMarkedBeforeLockAndUpdateToLockedJewels() {
+    const random = Math.random();
+    const chanceToAssignLock =
+      JEWEL_TYPE_CHANCES_BY_LEVEL[JewelType.MarkedLocked] *
+      this.getCurrentLevel();
+    const shouldAssignLock = random < chanceToAssignLock;
+
+    const allValidJewels: Jewel[] = [];
+    this.getAllJewels().forEach((jewel) => {
+      if (jewel.jewelType === JewelType.Normal) allValidJewels.push(jewel);
+      if (jewel.jewelType === JewelType.MarkedLocked) {
+        jewel.jewelType = JewelType.Locked;
+      }
+    });
+    if (allValidJewels.length === 0)
+      return console.log("no valid jewels found to assign as locked");
+    if (shouldAssignLock) {
+      const randomIndex = Math.floor(Math.random() * allValidJewels.length);
+
+      const jewelToAssign = allValidJewels[randomIndex];
+      if (jewelToAssign === undefined)
+        throw new Error("expected jewel not found");
+      jewelToAssign.jewelType = JewelType.MarkedLocked;
+    }
   }
 }
 export function createJewel(level: number, pixelPosition: Point) {

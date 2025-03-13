@@ -1,121 +1,60 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect } from "react";
 import "./App.css";
-import { GRID_PIXEL_DIMENSIONS, RENDER_INTERVAL } from "./app-consts";
-import { SelectGrid } from "./SelectGrid";
-import { updateCanvas } from "./update-canvas";
 import { ImageManager } from "./image-manager";
-
-import { MatchChecker } from "./match-checker";
-import { GridRefiller } from "./grid-refiller";
 import {
   JEWEL_COLOR_URLS,
   JEWEL_TYPE_INDICATOR_URLS,
 } from "./jewel/jewel-consts";
-import {
-  GAME_EVENT_TYPE_STRINGS,
-  GameEventManager,
-  GameEventType,
-} from "./game-event-manager";
-import { Grid } from "./grid";
+import { TwistGame } from "./game";
+import GameBoard from "./GameBoard";
+import { enableMapSet } from "immer";
+import { useGameStore } from "./stores/game-store";
+import DebugDisplay from "./components/DebugDisplay";
+// for immer to be able to use map and set
+enableMapSet();
 
-export const grid = new Grid();
-export const matchChecker = new MatchChecker(grid);
-export const gridRefiller = new GridRefiller(grid);
-export const gameEventManager = new GameEventManager();
+export const gameSingletonHolder: { game: null | TwistGame } = { game: null };
 export const imageManager = new ImageManager();
 
 function App() {
-  const [loading, setLoading] = useState(true);
-  const [numJewels, setNumJewels] = useState(0);
-  const [numJewelsRemoved, setNumJewelsRemoved] = useState(0);
-  const [isGameOver, setIsGameOver] = useState(false);
+  const mutateGameState = useGameStore().mutateState;
+  const isGameOver = useGameStore().isGameOver;
+  const showDebug = useGameStore().showDebug;
 
-  const [currentlyProcessingEventType, setCurrentlyProcessingEventType] =
-    useState<null | GameEventType>(null);
-  const animationFrameRef = useRef<number>(null);
-  const lastRenderTimestampRef = useRef(0);
-
-  function tick(timestamp: number, context: CanvasRenderingContext2D) {
-    gameEventManager.process();
-
-    if (timestamp - lastRenderTimestampRef.current >= RENDER_INTERVAL) {
-      updateCanvas(context);
-    }
-    animationFrameRef.current = requestAnimationFrame((timestamp) => {
-      tick(timestamp, context);
-    });
-  }
   useEffect(() => {
     const jewelImageURLs = Object.values(JEWEL_COLOR_URLS);
     const indicatorURLs = Object.values(JEWEL_TYPE_INDICATOR_URLS);
     const allURLs = jewelImageURLs.concat(indicatorURLs);
     imageManager.loadImages(allURLs, () => {
-      setLoading(false);
+      mutateGameState((state) => {
+        state.loading = false;
+      });
     });
   }, []);
 
-  useEffect(() => {
-    if (loading) return;
-    const canvas = document.querySelector("canvas");
-    if (canvas === null) return;
-    const context = canvas.getContext("2d");
-    if (context === null) return;
-
-    // context.translate(0, 100);
-
-    grid.numJewelsSetter = setNumJewels;
-    grid.numJewelsRemovedSetter = setNumJewelsRemoved;
-    grid.isGameOverSetter = setIsGameOver;
-    grid.currentlyProcessingGameEventTypeSetter =
-      setCurrentlyProcessingEventType;
-
-    animationFrameRef.current = requestAnimationFrame((timestamp) => {
-      tick(timestamp, context);
-    });
-    return () => {
-      if (animationFrameRef.current !== null)
-        cancelAnimationFrame(animationFrameRef.current);
-    };
-  }, [loading]);
-
-  if (loading) return "loading";
-
   function handleNewGameClick() {
-    setNumJewelsRemoved(0);
-    grid.rows = grid.makeGrid(
-      grid.cellDimensions.height,
-      grid.cellDimensions.width
-    );
-    setIsGameOver(false);
-    grid.isGameOver = false;
+    const { game } = gameSingletonHolder;
+    if (game !== null) game.reset();
   }
 
   return (
-    <div className="main-container">
-      <div className="all-grids">
-        <canvas
-          height={GRID_PIXEL_DIMENSIONS.HEIGHT}
-          width={GRID_PIXEL_DIMENSIONS.WIDTH}
-          className="canvas"
-        ></canvas>
-        <SelectGrid />
+    <div className="bg-slate-700 h-screen">
+      <div className="p-4 flex flex-col items-center">
+        <div className="h-[4px] w-full bg-zinc-300" />
+        <h1 className="text-zinc-300 text-3xl font-bold pt-2 pb-2">
+          twistgame (title TBD)
+        </h1>
+        <div className="h-[4px] w-full bg-zinc-300" />
       </div>
-      <div style={{ padding: "2px" }}>Num Jewels: {numJewels}</div>
-      <div style={{ padding: "2px" }}>
-        Current event processing:{" "}
-        {currentlyProcessingEventType !== null
-          ? GAME_EVENT_TYPE_STRINGS[currentlyProcessingEventType]
-          : "null"}
-      </div>
-      <div style={{ padding: "2px" }}>score: {numJewelsRemoved}</div>
-      <div style={{ padding: "2px" }}>level: {grid.getCurrentLevel()}</div>
-      <div style={{ padding: "2px" }}>
-        isGameOver: {isGameOver ? "true" : "false"}
+      <div className="flex justify-center w-full max-w-[1080px] p-4 pt-0">
+        <div className="w-72 border-[3px] border-zinc-300 mr-2">score etc</div>
+        <GameBoard />
       </div>
       <dialog open={isGameOver} className="dialog">
         <h3>GAME OVER !!!</h3>
         <button onClick={handleNewGameClick}>Play Again</button>
       </dialog>
+      {showDebug && <DebugDisplay />}
     </div>
   );
 }

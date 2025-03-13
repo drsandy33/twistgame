@@ -1,7 +1,5 @@
 import cloneDeep from "lodash.clonedeep";
 import { GameEvent, GameEventType } from ".";
-import { AnimationRegistry } from "../animation-registry";
-import { gameEventManager, grid, matchChecker } from "../App";
 import { Point } from "../types";
 import { FadeoutAnimation } from "../jewel/fadeout-animation";
 import { JewelType } from "../jewel/jewel-consts";
@@ -9,23 +7,27 @@ import { TranslationAnimation } from "../jewel/translation-animation";
 import { ColumnRefillsGameEvent } from "./column-refills";
 import { Match } from "../match-checker";
 import { GRID_CELL_DIMENSIONS, MINIMUM_MATCH_LENGTH } from "../app-consts";
+import { getRandomHexColor } from "../utils";
+import { TwistGame } from "../game";
+import { Grid } from "../grid";
 
 export class JewelRemovalsGameEvent extends GameEvent {
-  animationRegistry = new AnimationRegistry();
   numJewelsMarkedForRemoval = 0;
-  constructor() {
-    super(GameEventType.JewelRemovals);
+  constructor(game: TwistGame) {
+    super(GameEventType.JewelRemovals, game);
   }
 
   start(): void {
+    const { grid, matchChecker } = this.game;
     const matches = matchChecker.checkForMatches();
     grid.markMatchedJewelsAndStopCountingMatchedJewels(matches);
 
-    if (matches.length === 0) this.isComplete = true;
-
     matches.forEach((match) => {
+      const matchColor = getRandomHexColor();
       match.jewelPositions.forEach((jewelPosition) => {
         const jewel = grid.getJewelAtPosition(jewelPosition);
+        jewel.matchColorOption = matchColor;
+
         if (jewel.jewelType === JewelType.Fire)
           this.handleSpecialJewelRemoval(jewelPosition, getExplosionPositions);
 
@@ -38,17 +40,11 @@ export class JewelRemovalsGameEvent extends GameEvent {
       if (match.jewelPositions.length === MINIMUM_MATCH_LENGTH) {
         match.jewelPositions.forEach((jewelPosition) => {
           const jewel = grid.getJewelAtPosition(jewelPosition);
-          this.animationRegistry.register(jewelPosition);
 
           jewel.shouldBeReplaced = true;
           this.numJewelsMarkedForRemoval += 1;
 
-          jewel.animations.push(
-            new FadeoutAnimation(jewel, () => {
-              this.animationRegistry.unregister(jewelPosition);
-              if (this.animationRegistry.isEmpty()) this.isComplete = true;
-            })
-          );
+          jewel.animations.push(new FadeoutAnimation(jewel, () => {}));
         });
       } else if (match.longestAxisLength < 5) {
         this.handleSpecialJewelCreation(
@@ -69,14 +65,16 @@ export class JewelRemovalsGameEvent extends GameEvent {
   handleSpecialJewelCreation(
     match: Match,
     jewelType: JewelType,
-    positionGetter: (match: Match) => Point
+    positionGetter: (grid: Grid, match: Match) => Point
   ) {
-    const newSpecialJewelPosition = positionGetter(match);
+    const { grid } = this.game;
+    const newSpecialJewelPosition = positionGetter(grid, match);
 
     const newSpecialJewel = grid.getJewelAtPosition(newSpecialJewelPosition);
     newSpecialJewel.isExploding = false;
     newSpecialJewel.isBeingZapped = false;
     newSpecialJewel.jewelType = jewelType;
+
     if (newSpecialJewel.shouldBeReplaced) {
       newSpecialJewel.shouldBeReplaced = false;
       newSpecialJewel.opacity = 1;
@@ -86,9 +84,9 @@ export class JewelRemovalsGameEvent extends GameEvent {
     match.jewelPositions.forEach((jewelPosition) => {
       const currentJewel = grid.getJewelAtPosition(jewelPosition);
 
-      if (newSpecialJewel.id === currentJewel.id) return;
+      if (newSpecialJewel.id === currentJewel.id)
+        return console.log("skipping new special jewel translation");
 
-      this.animationRegistry.register(jewelPosition);
       currentJewel.shouldBeReplaced = true;
       this.numJewelsMarkedForRemoval += 1;
 
@@ -98,14 +96,7 @@ export class JewelRemovalsGameEvent extends GameEvent {
           cloneDeep(newSpecialJewel.pixelPosition),
           currentJewel,
           () => {
-            this.animationRegistry.unregister(jewelPosition);
-
             currentJewel.opacity = 0;
-            console.log(
-              "unregistered in jewel removals",
-              this.animationRegistry.activeAnimationCellPositions
-            );
-            if (this.animationRegistry.isEmpty()) this.isComplete = true;
           }
         )
       );
@@ -116,6 +107,7 @@ export class JewelRemovalsGameEvent extends GameEvent {
     jewelPosition: Point,
     affectedPositionsGetter: (centerPosition: Point) => Point[]
   ) {
+    const { grid } = this.game;
     const jewel = grid.getJewelAtPosition(jewelPosition);
     const specialJewelTypes = [JewelType.Fire, JewelType.Lightning];
     if (specialJewelTypes.includes(jewel.jewelType)) {
@@ -144,16 +136,21 @@ export class JewelRemovalsGameEvent extends GameEvent {
   }
 
   onComplete(): void {
+    const { grid, gameEventManager } = this.game;
     grid.updateScore(this.numJewelsMarkedForRemoval);
     grid.checkForGameOver();
+    grid.getAllJewels().forEach((jewel) => {
+      jewel.isPartOfMatch = false;
+    });
     if (this.numJewelsMarkedForRemoval > 0)
-      gameEventManager.addEvent(new ColumnRefillsGameEvent());
+      gameEventManager.addEvent(new ColumnRefillsGameEvent(this.game));
   }
 }
 
-function getFireJewelPosition(match: Match): Point {
+function getFireJewelPosition(grid: Grid, match: Match): Point {
   if (match.predeterminedSpecialJewelPositionOption)
     return match.predeterminedSpecialJewelPositionOption;
+
   let fireJewelPosition: Point | null = null;
   match.jewelPositions.forEach((jewelPosition, i) => {
     if (fireJewelPosition !== null) return;
@@ -173,7 +170,7 @@ function getFireJewelPosition(match: Match): Point {
   return fireJewelPosition;
 }
 
-function getLightningJewelPosition(match: Match): Point {
+function getLightningJewelPosition(_grid: Grid, match: Match): Point {
   if (match.predeterminedSpecialJewelPositionOption)
     return match.predeterminedSpecialJewelPositionOption;
 
@@ -192,7 +189,6 @@ function getExplosionPositions(center: Point) {
       const x = center.x + i;
       const y = center.y + rowIndex;
       if (x < 0 || x > COLUMNS - 1 || y < 0 || y > ROWS - 1) continue;
-
       positions.push(new Point(x, y));
     }
   }
