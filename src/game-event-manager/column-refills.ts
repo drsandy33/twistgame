@@ -2,7 +2,7 @@ import cloneDeep from "lodash.clonedeep";
 import { GameEvent, GameEventType } from ".";
 import { AnimationRegistry } from "../animation-registry";
 import { gameEventManager, grid, gridRefiller, matchChecker } from "../App";
-import { Point } from "../jewel-quartet";
+import { Point } from "../types";
 import { TranslationAnimation } from "../jewel/translation-animation";
 import { JewelRemovalsGameEvent } from "./jewel-removals";
 import { getJewelPixelPosition } from "../grid";
@@ -41,12 +41,13 @@ export class ColumnRefillsGameEvent extends GameEvent {
         rowIndex = rowIndex - 1;
 
         const currentJewelCellPosition = new Point(i, rowIndex);
+
         const currentJewelPositions = {
           pixelPosition: getJewelPixelPosition(
             currentJewelCellPosition.y,
             currentJewelCellPosition.x
           ),
-          cellPosition: currentJewelCellPosition,
+          cellPosition: cloneDeep(currentJewelCellPosition),
         };
 
         if (currentJewel.shouldBeReplaced) {
@@ -59,28 +60,33 @@ export class ColumnRefillsGameEvent extends GameEvent {
         const positionToAssign = unassignedEmptyPositions.shift();
         if (!positionToAssign) throw new Error("position to assign not found");
 
-        this.animationRegistry.register(currentJewelCellPosition);
+        this.animationRegistry.register(
+          cloneDeep(positionToAssign.cellPosition)
+        );
 
-        // currentJewel.justMoved = true; checking if we really needed this
-        currentJewel.fallingAnimation = new TranslationAnimation(
-          cloneDeep(currentJewel.pixelPosition),
-          cloneDeep(positionToAssign.pixelPosition),
-          currentJewel,
-          () => {
-            grid.putJewelInPosition(
-              positionToAssign.cellPosition,
-              currentJewel
-            );
-            this.animationRegistry.unregister(currentJewelCellPosition);
-            if (this.animationRegistry.isEmpty()) {
-              this.isComplete = true;
-              console.log("animation registry was empty in ColumnRefill");
-            } else
-              console.log(
-                "animation registry not yet empty in ColumnRefill",
-                this.animationRegistry.activeAnimationCellPositions
+        currentJewel.animations.push(
+          new TranslationAnimation(
+            cloneDeep(currentJewel.pixelPosition),
+            cloneDeep(positionToAssign.pixelPosition),
+            currentJewel,
+            () => {
+              grid.putJewelInPosition(
+                cloneDeep(positionToAssign.cellPosition),
+                currentJewel
               );
-          }
+              this.animationRegistry.unregister(
+                cloneDeep(positionToAssign.cellPosition)
+              );
+              if (this.animationRegistry.isEmpty()) {
+                this.isComplete = true;
+                console.log("animation registry was empty in ColumnRefill");
+              } else
+                console.log(
+                  "animation registry not yet empty in ColumnRefill",
+                  this.animationRegistry.activeAnimationCellPositions
+                );
+            }
+          )
         );
 
         unassignedEmptyPositions.push(currentJewelPositions);
@@ -91,6 +97,7 @@ export class ColumnRefillsGameEvent extends GameEvent {
 
   onComplete(): void {
     const matches = matchChecker.checkForMatches();
+    if (grid.numJewelsSetter) grid.numJewelsSetter(grid.getAllJewels().length);
     if (matches.length > 0)
       gameEventManager.addEvent(new JewelRemovalsGameEvent());
   }

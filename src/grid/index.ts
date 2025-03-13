@@ -4,17 +4,17 @@ import {
   GRID_CELL_DIMENSIONS,
   GRID_PIXEL_DIMENSIONS,
   JEWEL_TYPE_CHANCES_BY_LEVEL,
-} from "./app-consts";
-import { Jewel } from "./jewel";
-import { Point } from "./jewel-quartet";
-import { JewelColor, JewelType } from "./jewel/jewel-consts";
+} from "../app-consts";
+import { Jewel } from "../jewel";
+import { Point } from "../types";
+import { JewelColor, JewelType } from "../jewel/jewel-consts";
 import {
   iterateNumericEnum,
   chooseRandomFromArray,
   iterateNumericEnumKeyedRecord,
-} from "./utils";
-import { GameEventType } from "./game-event-manager";
-import { Match } from "./match-checker";
+} from "../utils";
+import { GameEventType } from "../game-event-manager";
+import { Match } from "../match-checker";
 
 export interface Dimensions {
   width: number;
@@ -149,17 +149,8 @@ export class Grid {
   drawSelf(context: CanvasRenderingContext2D) {
     const { width, height } = this.pixelDimensions;
     context.clearRect(0, 0, width, height);
-    for (let i = 0; i < this.rows.length; i = i + 1) {
-      const row = this.getRow(i);
-
-      for (let j = 0; j < row.length; j = j + 1) {
-        const position = new Point(j, i);
-        const jewel = this.getJewelAtPosition(position);
-
-        jewel.drawSelf(context);
-      }
-    }
   }
+
   selectJewelAtPosition(position: Point) {
     const jewel = this.getJewelAtPosition(position);
     jewel.isSelected = true;

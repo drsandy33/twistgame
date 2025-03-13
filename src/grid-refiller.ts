@@ -1,6 +1,5 @@
 import { createJewel, getJewelPixelPosition, Grid } from "./grid";
 import { Jewel } from "./jewel";
-// import { queueGridEvaluation } from "./evaluate-and-update-grid";
 
 export class GridRefiller {
   replacements: null | Jewel[][] = null;

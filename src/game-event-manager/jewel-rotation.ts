@@ -1,16 +1,16 @@
 import { GameEvent, GameEventType } from ".";
-import { AnimationRegistry } from "../animation-registry";
 import { gameEventManager, grid } from "../App";
 import { JEWEL_TYPE_CHANCES_BY_LEVEL } from "../app-consts";
+import { getJewelPixelPosition } from "../grid";
 import { Jewel } from "../jewel";
-import { JewelQuartet, Point } from "../jewel-quartet";
+import { JewelQuartet } from "../jewel-quartet";
 import { JewelType } from "../jewel/jewel-consts";
-import { RotationAnimation } from "../jewel/rotation-animation";
+import { OrbitAnimation } from "../jewel/orbit-animation";
+import { Point } from "../types";
 import { calculateAngle, calculateCenter } from "../utils";
 import { JewelRemovalsGameEvent } from "./jewel-removals";
 
 export class QuartetRotationGameEvent extends GameEvent {
-  animationRegistry = new AnimationRegistry();
   constructor(private quartet: JewelQuartet) {
     super(GameEventType.QuartetRotation);
   }
@@ -34,32 +34,30 @@ export class QuartetRotationGameEvent extends GameEvent {
       bottomLeftJewel,
     ];
     const rotationCenter = calculateCenter(
-      rotationParticipants.map((participant) => participant.pixelPosition)
+      quartet.positions.map((cellPosition) =>
+        getJewelPixelPosition(cellPosition.y, cellPosition.x)
+      )
     );
     rotationParticipants.forEach((jewel) => {
       jewel.justMoved = true;
     });
 
-    this.startRotationAnimation(
-      quartet.topLeftPosition,
+    this.startOrbitingAnimation(
       topLeftJewel,
       rotationCenter,
       topRightJewel.pixelPosition
     );
-    this.startRotationAnimation(
-      quartet.topRightPosition,
+    this.startOrbitingAnimation(
       topRightJewel,
       rotationCenter,
       bottomRightJewel.pixelPosition
     );
-    this.startRotationAnimation(
-      quartet.bottomRightPosition,
+    this.startOrbitingAnimation(
       bottomRightJewel,
       rotationCenter,
       bottomLeftJewel.pixelPosition
     );
-    this.startRotationAnimation(
-      quartet.bottomLeftPosition,
+    this.startOrbitingAnimation(
       bottomLeftJewel,
       rotationCenter,
       topLeftJewel.pixelPosition
@@ -83,8 +81,7 @@ export class QuartetRotationGameEvent extends GameEvent {
     gameEventManager.addEvent(new JewelRemovalsGameEvent());
   }
 
-  startRotationAnimation(
-    cellPositionOrigin: Point,
+  startOrbitingAnimation(
     jewelToRotate: Jewel,
     rotationCenter: Point,
     destinationPosition: Point
@@ -99,19 +96,14 @@ export class QuartetRotationGameEvent extends GameEvent {
       destinationPosition
     );
 
-    this.animationRegistry.register(cellPositionOrigin);
-
-    jewelToRotate.rotationAnimation = new RotationAnimation(
-      rotationCenter,
-      originalAngle,
-      destinationAngle,
-      jewelToRotate,
-      () => {
-        this.animationRegistry.unregister(cellPositionOrigin);
-        if (this.animationRegistry.isEmpty()) {
-          this.isComplete = true;
-        }
-      }
+    jewelToRotate.animations.push(
+      new OrbitAnimation(
+        rotationCenter,
+        originalAngle,
+        destinationAngle,
+        jewelToRotate,
+        () => {}
+      )
     );
   }
 }

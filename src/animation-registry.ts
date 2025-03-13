@@ -1,25 +1,15 @@
-import { Point } from "./jewel-quartet";
+import { Point } from "./types";
 
 export class AnimationRegistry {
-  activeAnimationCellPositions: Record<number, Record<number, boolean>> = {};
+  activeAnimationCellPositions: Point[] = [];
   constructor() {}
   register(cellPosition: Point) {
-    const { x, y } = cellPosition;
-
-    if (this.activeAnimationCellPositions[y] === undefined)
-      this.activeAnimationCellPositions[y] = {};
-    this.activeAnimationCellPositions[y][x] = true;
+    this.activeAnimationCellPositions.push(cellPosition);
   }
-  unregister(cellPosition: Point) {
-    const { x, y } = cellPosition;
-    if (this.activeAnimationCellPositions[y] !== undefined)
-      delete this.activeAnimationCellPositions[y][x];
+  unregister(_cellPosition: Point) {
+    this.activeAnimationCellPositions.pop();
   }
   isEmpty() {
-    let toReturn = true;
-    Object.values(this.activeAnimationCellPositions).forEach((row) => {
-      if (Object.values(row).length !== 0) toReturn = false;
-    });
-    return toReturn;
+    return this.activeAnimationCellPositions.length === 0;
   }
 }

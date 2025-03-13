@@ -1,5 +1,4 @@
-import { Point } from "./jewel-quartet";
-import { Radians } from "./jewel/rotation-animation";
+import { Point, Radians } from "./types";
 
 export function removeFromArray<T>(array: T[], item: T): undefined | T {
   const indexToRemove = array.indexOf(item);
@@ -9,7 +8,7 @@ export function removeFromArray<T>(array: T[], item: T): undefined | T {
 }
 
 export function iterateNumericEnum<
-  T extends { [name: string]: string | number }
+  T extends { [name: string]: string | number },
 >(enumType: T): T[keyof T][] {
   return Object.values(enumType).filter(
     (value) => !isNaN(Number(value))
@@ -105,6 +104,11 @@ export function findHypoteneuseCenterPoint(
     topLeftPosition.y + halfHypoteneuse
   );
 }
+
+export function indexIsEndOfList<T>(index: number, list: T[]) {
+  return index === list.length - 1;
+}
+
 export function calculateAngle(center: Point, point: Point): Radians {
   const dx = point.x - center.x;
   const dy = point.y - center.y;

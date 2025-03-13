@@ -3,8 +3,9 @@ import { gameEventManager, grid } from "./App";
 import "./App.css";
 import { JEWEL_DIAMETER, SELECT_GRID_SIZE } from "./app-consts";
 import { QuartetRotationGameEvent } from "./game-event-manager/jewel-rotation";
-import { JewelQuartet, Point } from "./jewel-quartet";
+import { JewelQuartet } from "./jewel-quartet";
 import SelectCircle from "./assets/selection-circle.svg?react";
+import { Point } from "./types";
 
 interface SelectBoxProps {
   x: number;
@@ -25,7 +26,8 @@ export function SelectBox(selectBoxProps: SelectBoxProps) {
     setIsHovered(true);
   }
 
-  function handleMouseDown() {
+  function handleMouseDown(e: React.MouseEvent) {
+    if (e.button !== 0) return;
     if (gameEventManager.isProcessing())
       return console.log("click not allowed while processing");
     if (grid.isGameOver) return;

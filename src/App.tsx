@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import "./App.css";
 import { GRID_PIXEL_DIMENSIONS, RENDER_INTERVAL } from "./app-consts";
 import { SelectGrid } from "./SelectGrid";
-import { Grid } from "./grid";
 import { updateCanvas } from "./update-canvas";
 import { ImageManager } from "./image-manager";
 
@@ -17,6 +16,7 @@ import {
   GameEventManager,
   GameEventType,
 } from "./game-event-manager";
+import { Grid } from "./grid";
 
 export const grid = new Grid();
 export const matchChecker = new MatchChecker(grid);
@@ -62,8 +62,6 @@ function App() {
     if (context === null) return;
 
     // context.translate(0, 100);
-
-    const matches = matchChecker.checkForMatches();
 
     grid.numJewelsSetter = setNumJewels;
     grid.numJewelsRemovedSetter = setNumJewelsRemoved;

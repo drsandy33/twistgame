@@ -1,9 +1,10 @@
 import cloneDeep from "lodash.clonedeep";
-import { MINIMUM_MATCH_LENGTH } from "./app-consts";
+import { GRID_CELL_DIMENSIONS, MINIMUM_MATCH_LENGTH } from "./app-consts";
 import { Grid } from "./grid";
 import { Jewel } from "./jewel";
-import { Point } from "./jewel-quartet";
+import { Point } from "./types";
 import { JewelColor, JewelType } from "./jewel/jewel-consts";
+import { indexIsEndOfList } from "./utils";
 
 enum Axis {
   Row,
@@ -42,6 +43,7 @@ export class MatchChecker {
     this.grid.getAllJewels().forEach((jewel) => {
       jewel.isPartOfMatch = false;
     });
+
     const rowMatches = this.checkAxisForMatches(this.grid.rows, Axis.Row);
     this.addIntersectingJewelPositionsToRowMatch(rowMatches);
 
@@ -64,44 +66,33 @@ export class MatchChecker {
   }
   checkAxisForMatches(axis: Jewel[][], axisType: Axis) {
     const matches: Match[] = [];
-    let currentMatchCandidate = new MatchCandidate();
+    let matchCandidate = new MatchCandidate();
 
     axis.forEach((list, listIndex) => {
-      currentMatchCandidate = new MatchCandidate();
+      matchCandidate = new MatchCandidate();
       list.forEach((jewel, jewelIndex) => {
         const x = axisType === Axis.Column ? listIndex : jewelIndex;
         const y = axisType === Axis.Row ? listIndex : jewelIndex;
         const position = new Point(x, y);
+        const { jewelType, jewelColor, isPartOfMatch } = jewel;
 
-        if (
-          currentMatchCandidate.jewelColor === null &&
-          jewel.jewelType !== JewelType.Rock
-        ) {
-          currentMatchCandidate.jewelColor = jewel.jewelColor;
-        }
-        if (
-          currentMatchCandidate.jewelColor === jewel.jewelColor &&
-          !jewel.isPartOfMatch
-        ) {
-          currentMatchCandidate.jewelPositions.push(position);
+        if (matchCandidate.jewelColor === null && jewelType !== JewelType.Rock)
+          matchCandidate.jewelColor = jewelColor;
 
-          if (
-            jewelIndex === list.length - 1 &&
-            currentMatchCandidate.isMatch()
-          ) {
-            matches.push(new Match(currentMatchCandidate.jewelPositions));
-            currentMatchCandidate = new MatchCandidate();
+        if (matchCandidate.jewelColor === jewel.jewelColor && !isPartOfMatch) {
+          matchCandidate.jewelPositions.push(position);
+
+          if (indexIsEndOfList(jewelIndex, list) && matchCandidate.isMatch()) {
+            matches.push(new Match(matchCandidate.jewelPositions));
+            matchCandidate = new MatchCandidate();
           }
         } else {
-          if (currentMatchCandidate.isMatch()) {
-            matches.push(new Match(currentMatchCandidate.jewelPositions));
-          }
-          if (jewel.jewelType !== JewelType.Rock)
-            currentMatchCandidate = new MatchCandidate(
-              position,
-              jewel.jewelColor
-            );
-          else currentMatchCandidate = new MatchCandidate();
+          if (matchCandidate.isMatch())
+            matches.push(new Match(matchCandidate.jewelPositions));
+
+          if (jewelType !== JewelType.Rock)
+            matchCandidate = new MatchCandidate(position, jewel.jewelColor);
+          else matchCandidate = new MatchCandidate();
         }
       });
     });
@@ -112,6 +103,7 @@ export class MatchChecker {
     matches.forEach((match) => {
       match.jewelPositions.forEach((jewelCellPosition) => {
         const currentJewel = this.grid.getJewelAtPosition(jewelCellPosition);
+
         const matchedJewelsAbove =
           this.getIntersectingMatchedJewelPositionsInDirection(
             currentJewel,
@@ -124,6 +116,7 @@ export class MatchChecker {
             jewelCellPosition,
             1
           );
+
         const intersectingMatchedJewels = [
           ...matchedJewelsAbove,
           ...matchedJewelsBelow,
@@ -136,6 +129,7 @@ export class MatchChecker {
       });
     });
   }
+
   getIntersectingMatchedJewelPositionsInDirection(
     currentJewel: Jewel,
     jewelCellPosition: Point,
@@ -144,19 +138,20 @@ export class MatchChecker {
     const intersectingMatchedJewelPositions: Point[] = [];
     let doneChecking = false;
     let currentIndex = direction;
+
     while (!doneChecking) {
-      try {
-        const positionToCheck = new Point(
-          jewelCellPosition.x,
-          jewelCellPosition.y + currentIndex
-        );
-        const jewelToCheck = this.grid.getJewelAtPosition(positionToCheck);
-        if (jewelToCheck.jewelColor === currentJewel.jewelColor)
-          intersectingMatchedJewelPositions.push(positionToCheck);
-        else doneChecking = true;
-      } catch (error) {
-        doneChecking = true;
-      }
+      const rowIndex = jewelCellPosition.y + currentIndex;
+      if (rowIndex < 0 || rowIndex === GRID_CELL_DIMENSIONS.ROWS) break;
+      const positionToCheck = new Point(
+        jewelCellPosition.x,
+        jewelCellPosition.y + currentIndex
+      );
+      const jewelToCheck = this.grid.getJewelAtPosition(positionToCheck);
+      if (jewelToCheck.isPartOfMatch) continue;
+      if (jewelToCheck.jewelColor === currentJewel.jewelColor)
+        intersectingMatchedJewelPositions.push(positionToCheck);
+      else doneChecking = true;
+
       currentIndex += direction;
     }
     return intersectingMatchedJewelPositions;
